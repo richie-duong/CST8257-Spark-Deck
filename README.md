@@ -4,6 +4,14 @@ Spark Deck is a web application built with Laravel, Livewire, and Tailwind CSS t
 
 ---
 
+## Group Members
+
+* Richard Duong (richie-duong)
+* Andrew Tan (tan00139)
+* Ralph Lubin (lubi0036)
+
+---
+
 ## Features
 
 * User registration and authentication
