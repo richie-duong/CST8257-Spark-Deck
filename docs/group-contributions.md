@@ -32,9 +32,9 @@
 
 ## Pages / Livewire Components
 
-- [ ] Home Page
-- [ ] Browse Decks
-- [ ] View Deck
+- [x] Home Page
+- [x] Browse Decks
+- [x] View Deck
 
 ## Features
 
@@ -59,9 +59,9 @@ Uses:
 
 ## Pages / Livewire Components
 
-- [ ] My Decks
-- [ ] Create Deck
-- [ ] Edit Deck
+- [x] My Decks
+- [x] Create Deck
+- [x] Edit Deck
 
 ## Features
 
@@ -84,8 +84,8 @@ Uses:
 
 ## Pages / Livewire Components
 
-- [ ] Manage Flashcards
-- [ ] Study Deck
+- [x] Manage Flashcards
+- [x] Study Deck
 
 ## Features
 
