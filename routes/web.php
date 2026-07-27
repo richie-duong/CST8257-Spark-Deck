@@ -31,4 +31,8 @@ Route::get('decks/{deck}/flashcards', ManageFlashcards::class)
 Route::get('decks/{deck}/study', StudyDeck::class)
     ->name('decks.study');
 
+Route::view('browse-decks', 'browse-decks')
+    ->middleware(['auth', 'verified'])
+    ->name('decks.browse');
+
 require __DIR__.'/auth.php';
