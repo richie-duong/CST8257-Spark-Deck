@@ -17,6 +17,7 @@ class StudyDeck extends Component
     public int $currentIndex = 0;
     public bool $isFlipped = false;
     public bool $isCompleted = false;
+    public int $resetCount = 0;
 
     public function mount(Deck $deck): void
     {
@@ -63,10 +64,11 @@ class StudyDeck extends Component
     }
 
     public function restartDeck(): void
-    {
-        $this->currentIndex = 0;
-        $this->isFlipped    = false;
-    }
+{
+    $this->currentIndex = 0;
+    $this->isFlipped    = false;
+    $this->resetCount++;
+}
 
     public function toggleCompleted(): void
     {

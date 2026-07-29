@@ -36,10 +36,10 @@
             </div>
 
            {{-- Flashcard --}}
-<div wire:key="card-{{ $currentIndex }}"
-     x-data="{ flipped: @entangle('isFlipped') }"
-     class="relative cursor-pointer min-h-64"
-     @click="$wire.flipCard()">
+<div wire:key="card-{{ $currentIndex }}-{{ $resetCount }}"
+     x-data="{ flipped: false }"
+     class="cursor-pointer"
+     @click="flipped = !flipped">
 
    {{-- Front — Question --}}
 <div x-show="!flipped"
