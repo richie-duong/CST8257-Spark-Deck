@@ -5,7 +5,11 @@ namespace App\Livewire;
 use App\Models\Deck;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 
+#[Layout('layouts.app')]
+#[Title('Study Deck')]
 class StudyDeck extends Component
 {
     public Deck $deck;
@@ -81,17 +85,15 @@ class StudyDeck extends Component
         }
     }
 
-    public function render()
-    {
-        $flashcards  = $this->deck->flashcards()->get();
-        $currentCard = $flashcards->get($this->currentIndex);
+   public function render()
+{
+    $flashcards  = $this->deck->flashcards()->get();
+    $currentCard = $flashcards->get($this->currentIndex);
 
-        return view('livewire.pages.study-deck', [
-            'flashcards'  => $flashcards,
-            'currentCard' => $currentCard,
-            'total'       => $flashcards->count(),
-        ])->layout('layouts.app', [
-            'header' => 'Study — ' . $this->deck->title,
-        ]);
-    }
+    return view('livewire.pages.study-deck', [
+        'flashcards'  => $flashcards,
+        'currentCard' => $currentCard,
+        'total'       => $flashcards->count(),
+    ]);
 }
+    }
