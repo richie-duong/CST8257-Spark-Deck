@@ -17,7 +17,13 @@ new class extends Component {
             </div>
 
             <!-- TODO: Wire this action to a deck-creation flow or modal. -->
-            <flux:button variant="primary" icon="plus" class="w-full sm:w-auto justify-center">
+            <flux:button
+                as="a"
+                href="{{ route('create-deck') }}"
+                variant="primary"
+                icon="plus"
+                class="w-full sm:w-auto justify-center"
+            >
                 {{ __('Create Deck') }}
             </flux:button>
         </header>

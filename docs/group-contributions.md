@@ -38,12 +38,12 @@
 
 ## Features
 
-- [ ] Display all public decks
-- [ ] View deck details
-- [ ] Display flashcards within a deck
-- [ ] Display deck creator
-- [ ] Upvote a deck
-- [ ] Show total upvotes
+- [x] Display all public decks
+- [x] View deck details
+- [x] Display flashcards within a deck
+- [x] Display deck creator
+- [x] Upvote a deck
+- [x] Show total upvotes
 
 ## Database
 
