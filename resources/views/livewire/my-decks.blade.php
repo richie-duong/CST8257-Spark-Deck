@@ -13,14 +13,43 @@
                 </a>
             </div>
 
-            <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                <div class="p-6 text-center text-gray-900">
-                    <h2 class="text-lg font-medium">{{ __('No decks yet') }}</h2>
-                    <p class="mt-2 text-sm text-gray-600">
-                        {{ __('Your decks will appear here after you create one.') }}
-                    </p>
+            @if ($decks->isEmpty())
+                <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
+                    <div class="p-6 text-center text-gray-900">
+                        <h2 class="text-lg font-medium">{{ __('No decks yet') }}</h2>
+                        <p class="mt-2 text-sm text-gray-600">
+                            {{ __('Your decks will appear here after you create one.') }}
+                        </p>
+                    </div>
                 </div>
-            </div>
+            @else
+                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    @foreach ($decks as $deck)
+                        <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
+                            <div class="p-6">
+                                <div class="flex items-start justify-between gap-4">
+                                    <h2 class="text-lg font-medium text-gray-900">
+                                        {{ $deck->title }}
+                                    </h2>
+                                    <span class="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium capitalize text-gray-600">
+                                        {{ $deck->visibility }}
+                                    </span>
+                                </div>
+
+                                @if ($deck->description)
+                                    <p class="mt-3 text-sm text-gray-600">
+                                        {{ $deck->description }}
+                                    </p>
+                                @endif
+
+                                <p class="mt-4 text-xs text-gray-500">
+                                    {{ __('Created :date', ['date' => $deck->created_at->format('M j, Y')]) }}
+                                </p>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
         </div>
     </div>
 </div>

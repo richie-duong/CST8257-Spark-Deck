@@ -11,6 +11,8 @@ class MyDecks extends Component
     #[Layout('layouts.app')]
     public function render(): View
     {
-        return view('livewire.my-decks');
+        return view('livewire.my-decks', [
+            'decks' => auth()->user()->decks()->latest()->get(),
+        ]);
     }
 }
