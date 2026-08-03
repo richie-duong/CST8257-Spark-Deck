@@ -41,7 +41,7 @@
                             </flux:button>
 
                             <!-- TODO: Replace with advanced discovery experience once filtering is implemented. -->
-                            <flux:button as="a" href="{{ route('decks.browse') }}" variant="ghost" class="justify-center sm:justify-start">
+                            <flux:button as="a" href="{{ route('browse-decks') }}" variant="ghost" class="justify-center sm:justify-start">
                                 Browse Decks
                             </flux:button>
                         </div>

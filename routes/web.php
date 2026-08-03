@@ -5,9 +5,14 @@ use App\Livewire\EditDeck;
 use App\Livewire\ManageFlashcards;
 use App\Livewire\MyDecks;
 use App\Livewire\StudyDeck;
+use App\Models\Deck;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
+
+// Public pages
+Route::view('browse-decks', 'browse-decks')
+    ->name('browse-decks');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
@@ -31,8 +36,8 @@ Route::get('decks/{deck}/flashcards', ManageFlashcards::class)
 Route::get('decks/{deck}/study', StudyDeck::class)
     ->name('decks.study');
 
-Route::view('browse-decks', 'browse-decks')
-    ->middleware(['auth', 'verified'])
-    ->name('decks.browse');
+Route::get('decks/{deck}', function (Deck $deck) {
+    return view('view-deck', compact('deck'));
+})->name('view-deck');
 
 require __DIR__.'/auth.php';
