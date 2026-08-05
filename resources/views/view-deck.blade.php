@@ -1,9 +1,3 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ $deck->title }}
-        </h2>
-    </x-slot>
-
     <livewire:pages.view-deck :deck="$deck" />
 </x-app-layout>
