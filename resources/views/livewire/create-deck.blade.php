@@ -1,18 +1,24 @@
 <div>
-    <div class="py-12">
-        <div class="mx-auto max-w-3xl sm:px-6 lg:px-8">
-            <h1 class="mb-6 px-4 text-2xl font-semibold text-gray-900 sm:px-0">
-                {{ __('Create Deck') }}
-            </h1>
+    <section class="relative overflow-hidden bg-gradient-to-br from-cyan-50 via-white to-indigo-50 py-16">
+        <div class="absolute -left-24 top-12 h-80 w-80 rounded-full bg-cyan-200/30 blur-3xl"></div>
+        <div class="absolute right-0 top-0 h-96 w-96 rounded-full bg-indigo-200/30 blur-3xl"></div>
 
-            <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                <form wire:submit="save" class="space-y-6 p-6">
+        <div class="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+            <a href="{{ route('decks.index') }}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-800" wire:navigate>
+                ← Back to My Decks
+            </a>
+
+            <h1 class="mt-8 text-4xl font-bold tracking-tight text-slate-900">{{ __('Create Deck') }}</h1>
+            <p class="mt-3 text-lg text-slate-600">Give your deck a clear title, helpful description, and the right visibility.</p>
+
+            <div class="mt-10 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-xl sm:p-8">
+                <form wire:submit="save" class="space-y-7">
                     <div>
-                        <x-input-label for="title" :value="__('Title')" />
+                        <x-input-label for="title" :value="__('Title')" class="font-semibold text-slate-700" />
                         <x-text-input
                             id="title"
                             type="text"
-                            class="mt-1 block w-full"
+                            class="mt-2 block w-full rounded-2xl border-slate-200 px-5 py-3 focus:border-cyan-400 focus:ring-cyan-200"
                             placeholder="{{ __('Enter a deck title') }}"
                             wire:model="title"
                         />
@@ -20,11 +26,11 @@
                     </div>
 
                     <div>
-                        <x-input-label for="description" :value="__('Description')" />
+                        <x-input-label for="description" :value="__('Description')" class="font-semibold text-slate-700" />
                         <textarea
                             id="description"
-                            rows="4"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            rows="5"
+                            class="mt-2 block w-full rounded-2xl border-slate-200 px-5 py-3 shadow-sm focus:border-cyan-400 focus:ring-cyan-200"
                             placeholder="{{ __('Describe this deck') }}"
                             wire:model="description"
                         ></textarea>
@@ -32,10 +38,10 @@
                     </div>
 
                     <div>
-                        <x-input-label for="visibility" :value="__('Visibility')" />
+                        <x-input-label for="visibility" :value="__('Visibility')" class="font-semibold text-slate-700" />
                         <select
                             id="visibility"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            class="mt-2 block w-full rounded-2xl border-slate-200 px-5 py-3 shadow-sm focus:border-cyan-400 focus:ring-cyan-200"
                             wire:model="visibility"
                         >
                             <option value="private">{{ __('Private') }}</option>
@@ -44,13 +50,23 @@
                         <x-input-error :messages="$errors->get('visibility')" class="mt-2" />
                     </div>
 
-                    <div class="flex justify-end">
-                        <x-primary-button>
+                    <div class="flex flex-col-reverse gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:justify-end">
+                        <a
+                            href="{{ route('decks.index') }}"
+                            class="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                            wire:navigate
+                        >
+                            Cancel
+                        </a>
+                        <button
+                            type="submit"
+                            class="inline-flex items-center justify-center rounded-full bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        >
                             {{ __('Create Deck') }}
-                        </x-primary-button>
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
-    </div>
+    </section>
 </div>

@@ -127,4 +127,19 @@ class DeckManagementTest extends TestCase
             'id' => $deck->id,
         ]);
     }
+
+    public function test_user_can_open_flashcard_management_from_their_deck_pages(): void
+    {
+        $user = User::factory()->create();
+        $deck = Deck::factory()->for($user)->create();
+        $flashcardUrl = route('decks.flashcards', $deck);
+
+        $this->actingAs($user);
+
+        Livewire::test(MyDecks::class)
+            ->assertSeeHtml('href="'.$flashcardUrl.'"');
+
+        Livewire::test(EditDeck::class, ['deck' => $deck])
+            ->assertSeeHtml('href="'.$flashcardUrl.'"');
+    }
 }
