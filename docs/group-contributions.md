@@ -65,12 +65,12 @@ Uses:
 
 ## Features
 
-- [ ] Display user's decks
-- [ ] Create new deck
-- [ ] Edit deck
-- [ ] Delete deck
-- [ ] Form validation
-- [ ] Success/error messages
+- [X] Display user's decks
+- [X] Create new deck
+- [X] Edit deck
+- [X] Delete deck
+- [X] Form validation
+- [X] Success/error messages
 
 ## Database
 
