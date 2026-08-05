@@ -15,7 +15,10 @@ new class extends Component
 
 ?>
 
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+<nav
+    x-data="{ open: false }"
+    class="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-xl shadow-sm"
+>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
