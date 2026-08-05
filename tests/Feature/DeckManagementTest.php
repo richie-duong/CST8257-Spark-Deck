@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Livewire\CreateDeck;
+use App\Livewire\EditDeck;
 use App\Livewire\MyDecks;
 use App\Models\Deck;
 use App\Models\User;
@@ -26,6 +27,7 @@ class DeckManagementTest extends TestCase
             ->set('visibility', 'private')
             ->call('save')
             ->assertHasNoErrors()
+            ->assertSessionHas('status', 'Deck created successfully.')
             ->assertRedirect(route('decks.index'));
 
         $this->assertDatabaseHas('decks', [
@@ -67,5 +69,62 @@ class DeckManagementTest extends TestCase
         Livewire::test(MyDecks::class)
             ->assertSee('My Deck')
             ->assertDontSee('Another User Deck');
+    }
+
+    public function test_user_can_edit_their_deck(): void
+    {
+        $user = User::factory()->create();
+        $deck = Deck::factory()->for($user)->create([
+            'title' => 'Old Title',
+            'visibility' => 'private',
+        ]);
+
+        $this->actingAs($user);
+
+        Livewire::test(EditDeck::class, ['deck' => $deck])
+            ->assertSet('title', 'Old Title')
+            ->set('title', 'Updated Title')
+            ->set('description', 'Updated description.')
+            ->set('visibility', 'public')
+            ->call('update')
+            ->assertHasNoErrors()
+            ->assertSessionHas('status', 'Deck updated successfully.')
+            ->assertRedirect(route('decks.index'));
+
+        $this->assertDatabaseHas('decks', [
+            'id' => $deck->id,
+            'user_id' => $user->id,
+            'title' => 'Updated Title',
+            'description' => 'Updated description.',
+            'visibility' => 'public',
+        ]);
+    }
+
+    public function test_user_cannot_edit_another_users_deck(): void
+    {
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $deck = Deck::factory()->for($otherUser)->create();
+
+        $this->actingAs($user)
+            ->get(route('decks.edit', $deck))
+            ->assertForbidden();
+    }
+
+    public function test_user_can_delete_their_deck(): void
+    {
+        $user = User::factory()->create();
+        $deck = Deck::factory()->for($user)->create();
+
+        $this->actingAs($user);
+
+        Livewire::test(MyDecks::class)
+            ->call('delete', $deck->id)
+            ->assertSessionHas('status', 'Deck deleted successfully.')
+            ->assertRedirect(route('decks.index'));
+
+        $this->assertDatabaseMissing('decks', [
+            'id' => $deck->id,
+        ]);
     }
 }

@@ -13,6 +13,12 @@
                 </a>
             </div>
 
+            @if (session('status'))
+                <div class="mb-6 rounded-md bg-green-100 p-4 text-sm text-green-700">
+                    {{ session('status') }}
+                </div>
+            @endif
+
             @if ($decks->isEmpty())
                 <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                     <div class="p-6 text-center text-gray-900">
@@ -45,6 +51,25 @@
                                 <p class="mt-4 text-xs text-gray-500">
                                     {{ __('Created :date', ['date' => $deck->created_at->format('M j, Y')]) }}
                                 </p>
+
+                                <div class="mt-4 flex items-center gap-4 border-t border-gray-100 pt-4">
+                                    <a
+                                        href="{{ route('decks.edit', $deck) }}"
+                                        class="text-sm font-medium text-indigo-600 hover:text-indigo-800"
+                                        wire:navigate
+                                    >
+                                        {{ __('Edit') }}
+                                    </a>
+
+                                    <button
+                                        type="button"
+                                        class="text-sm font-medium text-red-600 hover:text-red-800"
+                                        wire:click="delete({{ $deck->id }})"
+                                        wire:confirm="{{ __('Are you sure you want to delete this deck?') }}"
+                                    >
+                                        {{ __('Delete') }}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     @endforeach

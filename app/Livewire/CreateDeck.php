@@ -24,6 +24,8 @@ class CreateDeck extends Component
 
         auth()->user()->decks()->create($validated);
 
+        session()->flash('status', 'Deck created successfully.');
+
         $this->redirectRoute('decks.index', navigate: true);
     }
 
