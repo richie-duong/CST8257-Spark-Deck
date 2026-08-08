@@ -1,291 +1,306 @@
 <?php
 
 use App\Models\Deck;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Component;
 
 new class extends Component
 {
     public Deck $deck;
+
+    public bool $isCompleted = false;
+
+    public function mount(Deck $deck): void
+    {
+        $this->deck = $deck;
+
+        if (Auth::check()) {
+            $this->isCompleted = $deck->completedBy()
+                ->where('user_id', Auth::id())
+                ->exists();
+        }
+    }
 };
 
 ?>
 
-<section class="relative overflow-hidden bg-gradient-to-br from-cyan-50 via-white to-indigo-50 py-20">
+<section class="relative overflow-hidden bg-gradient-to-br from-cyan-50 via-white to-indigo-50">
 
-    <!-- Decorative Background -->
-
-    <div class="absolute -left-20 top-0 h-96 w-96 rounded-full bg-cyan-200/30 blur-3xl"></div>
-
-    <div class="absolute right-0 top-0 h-[420px] w-[420px] rounded-full bg-indigo-200/30 blur-3xl"></div>
-
-    <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-
-        <!-- Hero -->
-
-        <div class="max-w-3xl">
-
-            <span class="inline-flex items-center rounded-full bg-cyan-100 px-4 py-2 text-sm font-semibold text-cyan-700">
-
-                📚 Study Deck
-
-            </span>
-
-            <h1 class="mt-6 text-5xl font-bold tracking-tight text-slate-900">
-
-                {{ $deck->title }}
-
-            </h1>
-
-            <p class="mt-6 text-lg leading-8 text-slate-600">
-
-                {{ $deck->description }}
-
-            </p>
-
-        </div>
-
-        <!-- Deck Information -->
-
-        <!-- Study CTA -->
-
-<div class="mt-10 rounded-3xl border border-indigo-100 bg-gradient-to-r from-cyan-50 to-indigo-50 p-8 shadow-sm">
-
-    <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-
-        <div>
-
-            <h2 class="text-2xl font-bold text-slate-900">
-
-                Ready to Study?
-
-            </h2>
-
-            <p class="mt-2 text-slate-600">
-
-                Launch Study Mode to review these flashcards one at a time with a distraction-free experience.
-
-            </p>
-
-        </div>
-
-        <flux:button
-            disabled
-            variant="primary"
-            class="justify-center md:w-auto"
-        >
-            🎓 Study Deck
-            <span class="ml-2 text-xs opacity-75">
-                (Coming Soon)
-            </span>
-        </flux:button>
-
+    <div class="pointer-events-none absolute inset-0 overflow-hidden">
+        <div class="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-cyan-100/40 blur-3xl"></div>
+        <div class="absolute top-1/3 -left-32 h-80 w-80 rounded-full bg-indigo-100/30 blur-3xl"></div>
     </div>
 
-</div>
+    <div class="relative mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
 
-        <div class="mt-12 rounded-3xl border border-slate-200 bg-white shadow-xl">
+        <!-- Back Link -->
 
-            <div class="grid grid-cols-2 divide-x divide-y divide-slate-200 lg:grid-cols-4 lg:divide-y-0">
+        <a
+            href="{{ route('browse-decks') }}"
+            wire:navigate
+            class="inline-flex items-center text-sm font-semibold text-indigo-600 transition hover:text-indigo-800"
+        >
+            ← Browse Decks
+        </a>
 
-                <div class="p-6">
 
-                    <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">
+        <!-- Header -->
 
-                        Creator
+        <div class="mt-8">
 
-                    </p>
+            <span class="inline-flex rounded-full bg-cyan-100 px-4 py-2 text-sm font-semibold text-cyan-700">
+                📚 Study Deck
+            </span>
 
-                    <p class="mt-3 text-lg font-semibold text-slate-900">
+            <h1 class="mt-5 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+                {{ $deck->title }}
+            </h1>
 
-                        {{ $deck->user->name }}
-
-                    </p>
-
-                </div>
-
-                <div class="p-6">
-
-                    <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">
-
-                        Flashcards
-
-                    </p>
-
-                    <p class="mt-3 text-3xl font-bold text-indigo-600">
-
-                        {{ $deck->flashcards->count() }}
-
-                    </p>
-
-                </div>
-
-                <div class="p-6">
-
-                    <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">
-
-                        Visibility
-
-                    </p>
-
-                    <span class="mt-3 inline-flex rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700">
-
-                        {{ ucfirst($deck->visibility) }}
-
-                    </span>
-
-                </div>
-
-                <div class="p-6">
-
-                    <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">
-
-                        Created
-
-                    </p>
-
-                    <p class="mt-3 font-semibold text-slate-900">
-
-                        {{ $deck->created_at->format('M d, Y') }}
-
-                    </p>
-
-                    <p class="text-sm text-slate-500">
-
-                        {{ $deck->created_at->diffForHumans() }}
-
-                    </p>
-
-                </div>
-
-            </div>
+            @if ($deck->description)
+                <p class="mt-4 max-w-3xl text-lg leading-8 text-slate-600">
+                    {{ $deck->description }}
+                </p>
+            @endif
 
         </div>
 
-        <!-- Flashcards -->
 
-        <div class="mt-16">
+        <!-- Study Callout -->
 
-            <div class="flex items-center justify-between">
+        <div class="mt-10 rounded-3xl border border-cyan-200 bg-gradient-to-r from-cyan-50 to-indigo-50 p-7 shadow-sm">
+
+            <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
 
                 <div>
 
-                    <h2 class="text-3xl font-bold text-slate-900">
+                    <p class="text-sm font-semibold text-cyan-700">
+                        Ready to Study?
+                    </p>
 
-                        Flashcards
-
+                    <h2 class="mt-2 text-2xl font-bold text-slate-900">
+                        Review this deck one card at a time.
                     </h2>
 
-                    <p class="mt-2 text-slate-500">
-
-                        Review each flashcard below.
-
+                    <p class="mt-2 max-w-2xl leading-7 text-slate-600">
+                        Launch Study Mode for a focused flashcard session and mark the deck as complete when you're finished.
                     </p>
 
                 </div>
 
-                <div class="rounded-full border border-slate-200 bg-white px-5 py-2 shadow-sm">
+                <flux:button
+                    as="a"
+                    href="{{ route('decks.study', $deck) }}"
+                    class="w-full sm:w-auto justify-center !bg-indigo-600 !text-white hover:!bg-indigo-700"
+                    wire:navigate
+                >
+                    Study Deck
+                </flux:button>
 
-                    <span class="font-semibold text-indigo-600">
+            </div>
 
+        </div>
+
+
+        <!-- Deck Information -->
+
+        <div class="mt-10 overflow-hidden rounded-3xl border border-slate-200 bg-white/90 shadow-lg">
+
+            <div class="grid grid-cols-1 divide-y divide-slate-200 sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
+
+                <!-- Creator -->
+
+                <div class="p-6">
+
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Creator
+                    </p>
+
+                    <p class="mt-3 text-lg font-semibold text-slate-900">
+                        {{ $deck->user->name }}
+                    </p>
+
+                </div>
+
+
+                <!-- Flashcards -->
+
+                <div class="p-6">
+
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Flashcards
+                    </p>
+
+                    <p class="mt-3 text-3xl font-bold text-indigo-600">
                         {{ $deck->flashcards->count() }}
+                    </p>
 
+                </div>
+
+
+                <!-- Visibility -->
+
+                <div class="p-6">
+
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Visibility
+                    </p>
+
+                    <span class="mt-3 inline-flex rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700">
+                        {{ ucfirst($deck->visibility) }}
                     </span>
 
-                    <span class="text-slate-500">
+                </div>
 
-                        Cards
 
-                    </span>
+                <!-- Completion Status -->
+
+                <div class="p-6">
+
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Status
+                    </p>
+
+                    @auth
+
+                        @if ($isCompleted)
+
+                            <span class="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700">
+                                ✓ Completed
+                            </span>
+
+                        @else
+
+                            <span class="mt-3 inline-flex items-center rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-600">
+                                Not Completed
+                            </span>
+
+                        @endif
+
+                    @else
+
+                        <span class="mt-3 inline-flex items-center rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-600">
+                            Log in to track
+                        </span>
+
+                    @endauth
 
                 </div>
 
             </div>
 
-            <div class="mt-8 space-y-8">
+        </div>
 
-            @foreach ($deck->flashcards as $index => $flashcard)
 
-    <article class="rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:shadow-lg">
+        <!-- Created Date -->
 
-        <!-- Card Header -->
+        <div class="mt-4 flex items-center justify-end text-sm text-slate-500">
 
-        <div class="flex items-center justify-between border-b border-slate-200 px-8 py-5">
-
-            <div>
-
-                <h3 class="text-xl font-semibold text-slate-900">
-
-                    Flashcard #{{ $index + 1 }}
-
-                </h3>
-
-            </div>
-
-            <span class="rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-600">
-
-                {{ $index + 1 }} / {{ $deck->flashcards->count() }}
-
+            <span>
+                Created {{ $deck->created_at->format('M d, Y') }}
             </span>
 
         </div>
 
-        <!-- Card Body -->
 
-        <div class="p-8">
+        <!-- Flashcards -->
 
-            <!-- Question -->
+        <div class="mt-12">
 
-            <div>
+            <div class="flex items-end justify-between gap-4">
 
-                <h4 class="text-sm font-semibold uppercase tracking-wider text-slate-500">
+                <div>
 
-                    Question
+                    <h2 class="text-3xl font-bold tracking-tight text-slate-900">
+                        Flashcards
+                    </h2>
 
-                </h4>
-
-                <div class="mt-4 border-l-4 border-slate-300 pl-5">
-
-                    <p class="text-xl leading-9 text-slate-800">
-
-                        {{ $flashcard->question }}
-
+                    <p class="mt-2 text-slate-600">
+                        Review each flashcard below.
                     </p>
 
                 </div>
 
-            </div>
-
-            <!-- Divider -->
-
-            <div class="my-8 border-t border-slate-200"></div>
-
-            <!-- Answer -->
-
-            <div>
-
-                <h4 class="text-sm font-semibold uppercase tracking-wider text-emerald-700">
-
-                    💡 Answer
-
-                </h4>
-
-                <div class="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
-
-                    <p class="text-lg leading-8 text-slate-700">
-
-                        {{ $flashcard->answer }}
-
-                    </p>
-
-                </div>
+                <span class="hidden rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-indigo-600 shadow-sm sm:inline-flex">
+                    {{ $deck->flashcards->count() }}
+                    {{ $deck->flashcards->count() === 1 ? 'Card' : 'Cards' }}
+                </span>
 
             </div>
 
-        </div>
 
-    </article>
+            <!-- Flashcard List -->
 
-@endforeach
+            <div class="mt-6 space-y-5">
+
+                @forelse($deck->flashcards as $index => $flashcard)
+
+                    <article class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+
+                        <!-- Card Header -->
+
+                        <div class="flex items-center justify-between border-b border-slate-200 px-6 py-5">
+
+                            <h3 class="text-lg font-bold text-slate-900">
+                                Flashcard #{{ $index + 1 }}
+                            </h3>
+
+                            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">
+                                {{ $index + 1 }} / {{ $deck->flashcards->count() }}
+                            </span>
+
+                        </div>
+
+
+                        <!-- Question -->
+
+                        <div class="p-6 sm:p-8">
+
+                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                                Question
+                            </p>
+
+                            <p class="mt-3 text-lg leading-7 text-slate-800">
+                                {{ $flashcard->question }}
+                            </p>
+
+
+                            <!-- Answer -->
+
+                            <div class="mt-7 rounded-2xl bg-emerald-50 p-5">
+
+                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                                    Answer
+                                </p>
+
+                                <p class="mt-3 text-lg font-semibold leading-7 text-emerald-800">
+                                    {{ $flashcard->answer }}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                @empty
+
+                    <div class="rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+
+                        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-xl">
+                            📚
+                        </div>
+
+                        <h3 class="mt-5 text-xl font-bold text-slate-900">
+                            No flashcards yet
+                        </h3>
+
+                        <p class="mt-2 text-slate-600">
+                            This deck doesn't have any flashcards to review.
+                        </p>
+
+                    </div>
+
+                @endforelse
 
             </div>
 
