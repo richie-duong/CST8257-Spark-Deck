@@ -51,6 +51,7 @@
                             <h1 class="mt-8 text-5xl lg:text-7xl font-bold tracking-tight leading-tight text-slate-900">
 
                                 Your Study
+
                                 <span class="bg-gradient-to-r from-cyan-500 to-indigo-600 bg-clip-text text-transparent">
                                     Superpower.
                                 </span>
@@ -65,25 +66,25 @@
 
                             </p>
 
+                            <!-- Hero Buttons -->
+
                             <div class="mt-10 flex flex-col sm:flex-row gap-4">
 
-                                <flux:button
-                                    as="a"
+                                <a
                                     href="{{ route('register') }}"
-                                    variant="primary"
-                                    class="justify-center"
+                                    wire:navigate
+                                    class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-200/50 transition duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-200/70 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2"
                                 >
                                     Get Started
-                                </flux:button>
+                                </a>
 
-                                <flux:button
-                                    as="a"
+                                <a
                                     href="{{ route('browse-decks') }}"
-                                    variant="ghost"
-                                    class="justify-center"
+                                    wire:navigate
+                                    class="inline-flex items-center justify-center rounded-xl border-2 border-indigo-200 bg-white px-6 py-3.5 text-sm font-bold text-indigo-700 shadow-md transition duration-300 hover:-translate-y-0.5 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-800 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2"
                                 >
                                     Browse Decks
-                                </flux:button>
+                                </a>
 
                             </div>
 
@@ -173,7 +174,7 @@
 
                                 </div>
 
-                                                            <!-- Quick Stats -->
+                                <!-- Quick Stats -->
 
                                 <div class="mt-6 grid grid-cols-3 gap-4">
 
@@ -225,6 +226,7 @@
 
             </section>
 
+
             <!-- ================= FEATURES ================= -->
 
             <section class="py-24 bg-white">
@@ -234,15 +236,11 @@
                     <div class="text-center">
 
                         <span class="text-cyan-600 font-semibold uppercase tracking-widest text-sm">
-
                             Features
-
                         </span>
 
                         <h2 class="mt-4 text-4xl font-bold text-slate-900">
-
                             Everything You Need To Study Smarter
-
                         </h2>
 
                         <p class="mt-6 max-w-2xl mx-auto text-lg text-slate-600">
@@ -268,9 +266,7 @@
                             </div>
 
                             <h3 class="mt-6 text-xl font-bold">
-
                                 Create Decks
-
                             </h3>
 
                             <p class="mt-4 text-slate-600 leading-7">
@@ -281,6 +277,7 @@
                             </p>
 
                         </article>
+
 
                         <!-- Card -->
 
@@ -293,9 +290,7 @@
                             </div>
 
                             <h3 class="mt-6 text-xl font-bold">
-
                                 Browse Community Decks
-
                             </h3>
 
                             <p class="mt-4 text-slate-600 leading-7">
@@ -306,6 +301,7 @@
                             </p>
 
                         </article>
+
 
                         <!-- Card -->
 
@@ -318,9 +314,7 @@
                             </div>
 
                             <h3 class="mt-6 text-xl font-bold">
-
                                 Community Upvotes
-
                             </h3>
 
                             <p class="mt-4 text-slate-600 leading-7">
@@ -331,6 +325,7 @@
                             </p>
 
                         </article>
+
 
                         <!-- Card -->
 
@@ -343,9 +338,7 @@
                             </div>
 
                             <h3 class="mt-6 text-xl font-bold">
-
                                 Powerful Search
-
                             </h3>
 
                             <p class="mt-4 text-slate-600 leading-7">
@@ -358,6 +351,7 @@
 
                         </article>
 
+
                         <!-- Card -->
 
                         <article class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm transition duration-300 hover:-translate-y-2 hover:shadow-xl">
@@ -369,9 +363,7 @@
                             </div>
 
                             <h3 class="mt-6 text-xl font-bold">
-
                                 Focused Studying
-
                             </h3>
 
                             <p class="mt-4 text-slate-600 leading-7">
@@ -384,6 +376,7 @@
 
                         </article>
 
+
                         <!-- Card -->
 
                         <article class="rounded-3xl bg-gradient-to-br from-cyan-500 to-indigo-600 p-8 text-white shadow-xl">
@@ -395,9 +388,7 @@
                             </div>
 
                             <h3 class="mt-6 text-2xl font-bold">
-
                                 Learn Anywhere
-
                             </h3>
 
                             <p class="mt-4 leading-7 text-cyan-50">
@@ -417,7 +408,8 @@
 
             </section>
 
-                    <!-- ================= HOW IT WORKS ================= -->
+
+            <!-- ================= HOW IT WORKS ================= -->
 
             <section class="py-24 bg-slate-50">
 
@@ -434,8 +426,10 @@
                         </h2>
 
                         <p class="mt-6 max-w-2xl mx-auto text-lg text-slate-600">
+
                             Getting started with Spark Deck is simple. Create a deck,
                             add your flashcards, and begin studying immediately.
+
                         </p>
 
                     </div>
@@ -453,11 +447,14 @@
                             </h3>
 
                             <p class="mt-4 text-slate-600 leading-7">
+
                                 Organize your notes into subject-specific flashcard
                                 decks that are easy to manage.
+
                             </p>
 
                         </div>
+
 
                         <div class="text-center">
 
@@ -470,11 +467,14 @@
                             </h3>
 
                             <p class="mt-4 text-slate-600 leading-7">
+
                                 Create questions and answers that reinforce key
                                 concepts and improve long-term memory.
+
                             </p>
 
                         </div>
+
 
                         <div class="text-center">
 
@@ -487,8 +487,10 @@
                             </h3>
 
                             <p class="mt-4 text-slate-600 leading-7">
+
                                 Review your flashcards whenever you have time and
                                 prepare confidently for your next exam.
+
                             </p>
 
                         </div>
@@ -498,6 +500,7 @@
                 </div>
 
             </section>
+
 
             <!-- ================= CTA ================= -->
 
@@ -521,25 +524,25 @@
 
                             </p>
 
+                            <!-- CTA Buttons -->
+
                             <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
 
-                                <flux:button
-                                    as="a"
+                                <a
                                     href="{{ route('register') }}"
-                                    variant="filled"
-                                    class="justify-center"
+                                    wire:navigate
+                                    class="inline-flex min-w-[190px] items-center justify-center rounded-xl bg-white px-7 py-3.5 text-sm font-bold text-indigo-700 shadow-xl ring-1 ring-white/50 transition duration-300 hover:-translate-y-1 hover:bg-slate-50 hover:text-indigo-800 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600"
                                 >
                                     Create Free Account
-                                </flux:button>
+                                </a>
 
-                                <flux:button
-                                    as="a"
+                                <a
                                     href="{{ route('browse-decks') }}"
-                                    variant="ghost"
-                                    class="justify-center border border-white text-white hover:bg-white hover:text-indigo-600"
+                                    wire:navigate
+                                    class="inline-flex min-w-[160px] items-center justify-center rounded-xl border-2 border-white bg-indigo-800 px-7 py-3.5 text-sm font-bold text-white shadow-xl transition duration-300 hover:-translate-y-1 hover:bg-white hover:text-indigo-700 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600"
                                 >
                                     Browse Decks
-                                </flux:button>
+                                </a>
 
                             </div>
 
@@ -552,6 +555,7 @@
             </section>
 
         </main>
+
 
         <!-- ================= FOOTER ================= -->
 
