@@ -7,32 +7,68 @@ use Livewire\Volt\Component;
 new class extends Component
 {
     public string $search = '';
+
     public string $sort = 'newest';
+
+    public string $filter = 'all';
 
     public function getDecksProperty()
     {
-        return Deck::where('visibility', 'public')
+        return Deck::query()
+            ->where('visibility', 'public')
 
-            ->when(trim($this->search), function ($query) {
-
+            // Search
+            ->when(trim($this->search) !== '', function ($query) {
                 $search = trim($this->search);
 
                 $query->where(function ($query) use ($search) {
-
-                    $query->where('title', 'like', "%{$search}%")
+                    $query
+                        ->where('title', 'like', "%{$search}%")
                         ->orWhere('description', 'like', "%{$search}%");
-
                 });
-
             })
 
-            ->withCount('voters')
+            // Sorting
+            ->when($this->sort === 'newest', function ($query) {
+                $query->latest();
+            })
 
-            ->when($this->sort === 'newest', fn ($query) => $query->latest())
-            ->when($this->sort === 'oldest', fn ($query) => $query->oldest())
-            ->when($this->sort === 'popular', fn ($query) => $query->orderByDesc('voters_count'))
+            ->when($this->sort === 'oldest', function ($query) {
+                $query->oldest();
+            })
 
-            ->with('user', 'flashcards', 'voters')
+            ->when($this->sort === 'popular', function ($query) {
+                $query
+                    ->withCount('voters')
+                    ->orderByDesc('voters_count');
+            })
+
+            // Liked filter
+            ->when(
+                $this->filter === 'liked' && Auth::check(),
+                function ($query) {
+                    $query->whereHas('voters', function ($query) {
+                        $query->where('users.id', Auth::id());
+                    });
+                }
+            )
+
+            // Completed filter
+            ->when(
+                $this->filter === 'completed' && Auth::check(),
+                function ($query) {
+                    $query->whereHas('completedBy', function ($query) {
+                        $query->where('users.id', Auth::id());
+                    });
+                }
+            )
+
+            ->with([
+                'user',
+                'flashcards',
+                'voters',
+                'completedBy',
+            ])
 
             ->get();
     }
@@ -45,352 +81,432 @@ new class extends Component
 
         $deck = Deck::findOrFail($deckId);
 
+        // Users cannot upvote their own decks.
         if ($deck->user_id === Auth::id()) {
             return;
         }
 
-        if ($deck->voters()->where('user_id', Auth::id())->exists()) {
+        $alreadyVoted = $deck
+            ->voters()
+            ->where('user_id', Auth::id())
+            ->exists();
 
+        if ($alreadyVoted) {
             $deck->voters()->detach(Auth::id());
-
         } else {
-
             $deck->voters()->attach(Auth::id());
-
         }
 
+        // Refresh the deck collection.
         unset($this->decks);
+    }
+
+    public function resetFilters(): void
+    {
+        $this->search = '';
+        $this->sort = 'newest';
+        $this->filter = 'all';
     }
 };
 
 ?>
 
-<section class="relative overflow-hidden bg-gradient-to-br from-cyan-50 via-white to-indigo-50 py-20">
+<section class="relative overflow-hidden bg-gradient-to-br from-cyan-50 via-white to-indigo-50 py-16 sm:py-20">
 
     <!-- Decorative Background -->
 
-    <div class="absolute -left-24 top-12 h-96 w-96 rounded-full bg-cyan-200/40 blur-3xl"></div>
+    <div class="pointer-events-none absolute inset-0 overflow-hidden">
 
-    <div class="absolute right-0 top-0 h-[500px] w-[500px] rounded-full bg-indigo-200/40 blur-3xl"></div>
+        <div class="absolute -left-24 top-12 h-96 w-96 rounded-full bg-cyan-200/40 blur-3xl"></div>
 
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="absolute right-0 top-0 h-[500px] w-[500px] rounded-full bg-indigo-200/40 blur-3xl"></div>
+
+    </div>
+
+
+    <!-- Main Content -->
+
+    <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
 
         <!-- Hero -->
 
         <div class="max-w-3xl">
 
             <span class="inline-flex items-center rounded-full bg-cyan-100 px-4 py-2 text-sm font-semibold text-cyan-700">
-
                 🌎 Community Library
-
             </span>
 
             <h1 class="mt-6 text-5xl font-bold tracking-tight text-slate-900">
-
                 Browse Community Decks
-
             </h1>
 
             <p class="mt-6 text-lg leading-8 text-slate-600">
-
                 Discover flashcard decks created by learners around the world.
                 Search thousands of study cards, explore popular topics,
                 and prepare smarter with Spark Deck.
-
             </p>
-
-            
 
         </div>
 
-        <!-- Search Panel -->
 
-        <div class="mt-12 rounded-3xl border border-slate-200 bg-white/90 backdrop-blur p-8 shadow-xl">
+        <!-- Search & Filters -->
+
+        <div class="mt-12 rounded-3xl border border-slate-200 bg-white/90 p-8 shadow-xl backdrop-blur">
 
             <!-- Search -->
 
-<div>
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-end">
 
-    <label
-        for="search"
-        class="block text-sm font-semibold text-slate-700"
-    >
-        Search Public Decks
-    </label>
+                <div class="flex-1">
 
-    <input
-        id="search"
-        type="search"
-        wire:model.live.debounce.300ms="search"
-        placeholder="Search by title or description..."
-        class="mt-4 block w-full rounded-2xl border border-slate-200 bg-white px-6 py-4 text-lg shadow-sm transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-200"
-    >
-
-</div>
-
-            <!-- Filter Pills -->
-
-            <div class="mt-8 border-t border-slate-200 pt-8">
-
-                <p class="text-sm font-semibold text-slate-700">
-
-                    Sort By
-
-                </p>
-                
-
-                <div class="mt-4 flex flex-wrap gap-3">
-
-                    <flux:button
-                        wire:click="$set('sort', 'newest')"
-                        :variant="$sort === 'newest' ? 'primary' : 'ghost'"
-                        class="rounded-full"
+                    <label
+                        for="search"
+                        class="block text-sm font-semibold text-slate-700"
                     >
-                        🕒 Newest
-                    </flux:button>
+                        Search Public Decks
+                    </label>
 
-                    <flux:button
-                        wire:click="$set('sort', 'popular')"
-                        :variant="$sort === 'popular' ? 'primary' : 'ghost'"
-                        class="rounded-full"
+                    <input
+                        id="search"
+                        type="search"
+                        wire:model.live.debounce.300ms="search"
+                        placeholder="Search by title or description..."
+                        class="mt-4 block w-full rounded-2xl border border-slate-200 bg-white px-6 py-4 text-lg shadow-sm transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-200"
                     >
-                        🔥 Most Popular
-                    </flux:button>
 
-                    <flux:button
-                        wire:click="$set('sort', 'oldest')"
-                        :variant="$sort === 'oldest' ? 'primary' : 'ghost'"
-                        class="rounded-full"
-                    >
-                        📅 Oldest
-                    </flux:button>
+                </div>
+
+
+                <!-- Result Count -->
+
+                <div class="shrink-0 rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-center sm:min-w-[140px]">
+
+                    <span class="block text-2xl font-bold text-indigo-600">
+                        {{ $this->decks->count() }}
+                    </span>
+
+                    <span class="text-sm text-slate-500">
+                        {{ $this->decks->count() === 1 ? 'deck' : 'decks' }} found
+                    </span>
 
                 </div>
 
             </div>
 
-        </div>
 
-        <!-- Section Header -->
+            <div class="mt-4 flex flex-wrap items-center gap-3">
 
-        <div class="mt-16 flex items-center justify-between">
+    <!-- Sorting -->
 
-            <div>
+    <flux:button
+        wire:click="$set('sort', 'newest')"
+        :variant="$sort === 'newest' ? 'primary' : 'ghost'"
+        class="rounded-full"
+    >
+        🕒 Newest
+    </flux:button>
 
-                <h2 class="text-3xl font-bold text-slate-900">
+    <flux:button
+        wire:click="$set('sort', 'popular')"
+        :variant="$sort === 'popular' ? 'primary' : 'ghost'"
+        class="rounded-full"
+    >
+        🔥 Most Popular
+    </flux:button>
 
-                    Explore Decks
+    <flux:button
+        wire:click="$set('sort', 'oldest')"
+        :variant="$sort === 'oldest' ? 'primary' : 'ghost'"
+        class="rounded-full"
+    >
+        📅 Oldest
+    </flux:button>
 
-                </h2>
 
-                <p class="mt-2 text-slate-500">
+    <!-- Divider -->
 
-                    Browse the latest flashcard decks shared by the community.
+    <div class="mx-1 hidden h-8 w-px bg-slate-200 sm:block"></div>
 
-                </p>
 
-            </div>
+    <!-- Filters -->
 
-            <div class="hidden md:block rounded-full bg-white px-6 py-3 shadow border border-slate-200">
+    <flux:button
+        wire:click="$set('filter', 'all')"
+        :variant="$filter === 'all' ? 'primary' : 'ghost'"
+        class="rounded-full"
+    >
+        All Decks
+    </flux:button>
 
-                <span class="font-semibold text-indigo-600">
+    @auth
 
-                    {{ $this->decks->count() }}
+        <flux:button
+            wire:click="$set('filter', 'liked')"
+            :variant="$filter === 'liked' ? 'primary' : 'ghost'"
+            class="rounded-full"
+        >
+            👍 Liked
+        </flux:button>
 
-                </span>
+        <flux:button
+            wire:click="$set('filter', 'completed')"
+            :variant="$filter === 'completed' ? 'primary' : 'ghost'"
+            class="rounded-full"
+        >
+            ✓ Completed
+        </flux:button>
 
-                <span class="text-slate-500">
+    @endauth
 
-                    decks found
 
-                </span>
+    <!-- Reset -->
 
-            </div>
+    <div class="mx-1 hidden h-8 w-px bg-slate-200 sm:block"></div>
 
-        </div>
-
-        <div class="mt-10">
-
-        @if ($this->decks->isEmpty())
-
-<div class="rounded-3xl border border-slate-200 bg-white p-16 text-center shadow-lg">
-
-    <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-cyan-100 text-5xl">
-
-        📚
-
-    </div>
-
-    <h3 class="mt-8 text-3xl font-bold text-slate-900">
-
-        No Decks Found
-
-    </h3>
-
-    <p class="mt-4 max-w-lg mx-auto text-lg text-slate-600">
-
-        We couldn't find any public decks matching your search.
-        Try another keyword or browse the newest community decks.
-
-    </p>
+    <flux:button
+        wire:click="resetFilters"
+        variant="ghost"
+        icon="arrow-path"
+        class="rounded-full"
+    >
+        Reset
+    </flux:button>
 
 </div>
 
-@else
-
-<div class="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
-
-@foreach ($this->decks as $deck)
-
-<article
-    class="group rounded-[28px] border border-slate-200 bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-2 hover:shadow-2xl">
-
-    <!-- Header -->
-
-    <div class="flex items-start justify-between">
-
-        <div>
-
-            <h3 class="text-2xl font-bold text-slate-900 group-hover:text-cyan-600 transition">
-
-                {{ $deck->title }}
-
-            </h3>
-
-            <p class="mt-2 text-sm text-slate-500">
-
-                by
-
-                <span class="font-semibold text-slate-700">
-
-                    {{ $deck->user->name }}
-
-                </span>
-
-            </p>
-
         </div>
 
-        @auth
 
-            @if ($deck->user_id !== auth()->id())
+        <!-- Deck Results -->
 
-                <button
-                    wire:click="toggleUpvote({{ $deck->id }})"
-                    class="rounded-full px-4 py-2 transition
+        <div class="mt-12">
 
-                    {{ $deck->voters->contains(auth()->id())
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-slate-100 text-slate-600 hover:bg-cyan-100 hover:text-cyan-700' }}"
-                >
+            @if ($this->decks->isEmpty())
 
-                    👍
+                <!-- Empty State -->
 
-                </button>
+                <div class="rounded-3xl border border-slate-200 bg-white/90 p-12 text-center shadow-xl">
+
+                    <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-cyan-100 text-5xl">
+                        📚
+                    </div>
+
+                    <h3 class="mt-8 text-3xl font-bold text-slate-900">
+                        No Decks Found
+                    </h3>
+
+                    <p class="mx-auto mt-4 max-w-lg text-lg text-slate-600">
+                        We couldn't find any public decks matching your search.
+                        Try another keyword, filter, or browse the newest community decks.
+                    </p>
+
+                </div>
 
             @else
 
-                <div class="rounded-full bg-slate-100 px-4 py-2 text-slate-400">
+                <!-- Deck Grid -->
 
-                    👍 {{ $deck->voters->count() }}
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+                    @foreach ($this->decks as $deck)
+
+                        @php
+                            $isLiked = Auth::check()
+                                && $deck->voters->contains('id', Auth::id());
+
+                            $isCompleted = Auth::check()
+                                && $deck->completedBy->contains('id', Auth::id());
+                        @endphp
+
+
+                        <!-- Deck Card -->
+
+                        <article
+                            wire:key="deck-{{ $deck->id }}"
+                            class="group rounded-3xl border p-7 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl
+                                {{ $isCompleted
+                                    ? 'border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-cyan-50'
+                                    : 'border-slate-200 bg-white/95' }}"
+                        >
+
+
+                            <!-- Header -->
+
+                            <div class="flex items-start justify-between gap-4">
+
+                                <div class="min-w-0">
+
+                                    <h3 class="text-2xl font-bold text-slate-900 transition group-hover:text-cyan-600">
+                                        {{ $deck->title }}
+                                    </h3>
+
+                                    <p class="mt-2 text-sm text-slate-500">
+                                        by
+
+                                        <span class="font-semibold text-slate-700">
+                                            {{ $deck->user->name }}
+                                        </span>
+                                    </p>
+
+                                </div>
+
+
+                                <!-- Upvote -->
+
+                                @auth
+
+                                    @if ($deck->user_id !== Auth::id())
+
+                                        <button
+                                            type="button"
+                                            wire:click="toggleUpvote({{ $deck->id }})"
+                                            class="shrink-0 rounded-full px-4 py-2 text-sm font-medium transition
+                                                {{ $isLiked
+                                                    ? 'bg-amber-100 text-amber-700 ring-1 ring-amber-200'
+                                                    : 'bg-white text-slate-600 shadow-sm ring-1 ring-slate-200 hover:bg-amber-50 hover:text-amber-700' }}"
+                                            title="{{ $isLiked ? 'Remove upvote' : 'Upvote this deck' }}"
+                                        >
+                                            👍
+                                        </button>
+
+                                    @else
+
+                                        <div
+                                            class="shrink-0 rounded-full bg-white/80 px-4 py-2 text-sm text-slate-400 ring-1 ring-slate-200"
+                                            title="You cannot upvote your own deck."
+                                        >
+                                            👍
+                                        </div>
+
+                                    @endif
+
+                                @else
+
+                                    <div
+                                        class="shrink-0 rounded-full bg-white/80 px-4 py-2 text-sm text-slate-500 ring-1 ring-slate-200"
+                                        title="Log in to upvote decks."
+                                    >
+                                        👍
+                                    </div>
+
+                                @endauth
+
+                            </div>
+
+
+                            <!-- Description -->
+
+                            <p class="mt-6 min-h-[84px] leading-7 text-slate-600">
+                                {{ $deck->description ?: 'No description available.' }}
+                            </p>
+
+
+                            <!-- Statistics -->
+
+<div class="mt-8 grid grid-cols-2 gap-4">
+
+    <!-- Flashcards -->
+
+    <div
+        class="rounded-2xl border border-cyan-200 bg-cyan-50 p-5"
+    >
+
+        <p class="text-3xl font-bold text-cyan-600">
+            {{ $deck->flashcards->count() }}
+        </p>
+
+        <p class="mt-2 text-sm text-slate-500">
+            Flashcards
+        </p>
+
+    </div>
+
+
+    <!-- Upvotes -->
+
+    <div
+        class="rounded-2xl border border-indigo-200 bg-indigo-50 p-5"
+    >
+
+        <p class="text-3xl font-bold text-indigo-600">
+            {{ $deck->voters->count() }}
+        </p>
+
+        <p class="mt-2 text-sm text-slate-500">
+            Upvotes
+        </p>
+
+    </div>
+
+</div>
+
+
+                            <!-- Tags & Date -->
+
+                            <div class="mt-6 flex items-center justify-between gap-3">
+
+                                <div class="flex flex-wrap items-center gap-2">
+
+                                    <!-- Visibility -->
+
+                                    <span
+                                        class="rounded-full px-4 py-2 text-sm font-medium
+                                            {{ $isCompleted
+                                                ? 'bg-white/80 text-slate-600 ring-1 ring-emerald-200'
+                                                : 'bg-slate-100 text-slate-600' }}"
+                                    >
+                                        🌎 {{ ucfirst($deck->visibility) }}
+                                    </span>
+
+
+                                    <!-- Completed -->
+
+@if ($isCompleted)
+
+    <span class="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm">
+        ✓ Completed
+    </span>
+
+@endif
+
+                                </div>
+
+
+                                <!-- Created -->
+
+                                <span class="shrink-0 text-sm text-slate-400">
+                                    {{ $deck->created_at->diffForHumans() }}
+                                </span>
+
+                            </div>
+
+
+                            <!-- View Deck -->
+
+                            <div class="mt-8">
+
+                                <flux:button
+                                    as="a"
+                                    href="{{ route('view-deck', ['deck' => $deck]) }}"
+                                    variant="primary"
+                                    class="w-full justify-center"
+                                    wire:navigate
+                                >
+                                    View Deck →
+                                </flux:button>
+
+                            </div>
+
+                        </article>
+
+                    @endforeach
 
                 </div>
 
             @endif
 
-
-        @endauth
-
-    </div>
-
-    <!-- Description -->
-
-    <p class="mt-6 leading-7 text-slate-600 min-h-[84px]">
-
-        {{ $deck->description ?: 'No description available.' }}
-
-    </p>
-
-    <!-- Stats -->
-
-    <div class="mt-8 grid grid-cols-2 gap-4">
-
-        <div class="rounded-2xl bg-cyan-50 p-5">
-
-            <p class="text-3xl font-bold text-cyan-600">
-
-                {{ $deck->flashcards->count() }}
-
-            </p>
-
-            <p class="mt-2 text-sm text-slate-500">
-
-                Flashcards
-
-            </p>
-
         </div>
-
-        <div class="rounded-2xl bg-indigo-50 p-5">
-
-            <p class="text-3xl font-bold text-indigo-600">
-
-                {{ $deck->voters->count() }}
-
-            </p>
-
-            <p class="mt-2 text-sm text-slate-500">
-
-                Upvotes
-
-            </p>
-
-        </div>
-
-    </div>
-
-    <!-- Visibility -->
-
-    <div class="mt-6 flex items-center justify-between">
-
-        <span class="rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-600">
-
-            🌎 {{ ucfirst($deck->visibility) }}
-
-        </span>
-
-        <span class="text-sm text-slate-400">
-
-            {{ $deck->created_at->diffForHumans() }}
-
-        </span>
-
-    </div>
-
-    <!-- Button -->
-
-    <div class="mt-8">
-
-        <flux:button
-            as="a"
-            href="{{ route('view-deck', $deck) }}"
-            variant="primary"
-            class="w-full justify-center"
-        >
-
-            View Deck →
-
-        </flux:button>
-
-    </div>
-
-</article>
-
-@endforeach
-
-</div>
-
-@endif
 
     </div>
 
