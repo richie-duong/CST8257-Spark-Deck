@@ -50,7 +50,7 @@
                             <article class="group flex h-full flex-col rounded-[28px] border border-slate-200 bg-white/90 p-7 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
                                 <div class="flex items-start justify-between gap-4">
                                     <h2 class="text-2xl font-bold text-slate-900 transition group-hover:text-cyan-700">{{ $deck->title }}</h2>
-                                    <span class="rounded-full px-3 py-1 text-xs font-semibold capitalize {{ $deck->visibility === 'public' ? 'bg-cyan-100 text-cyan-700' : 'bg-slate-100 text-slate-600' }}">
+                                    <span class="shrink-0 rounded-full px-3 py-1 text-xs font-semibold capitalize {{ $deck->visibility === 'public' ? 'bg-cyan-100 text-cyan-700' : 'bg-slate-100 text-slate-600' }}">
                                         {{ $deck->visibility }}
                                     </span>
                                 </div>
@@ -59,32 +59,52 @@
                                     {{ $deck->description ?: __('No description available.') }}
                                 </p>
 
-                                <p class="mt-6 text-sm text-slate-400">
-                                    {{ __('Created :date', ['date' => $deck->created_at->format('M j, Y')]) }}
-                                </p>
+                                <div class="mt-6 flex items-center justify-between gap-3">
+                                    <p class="text-sm text-slate-400">
+                                        {{ __('Created :date', ['date' => $deck->created_at->format('M j, Y')]) }}
+                                    </p>
+
+                                    @if ($deck->is_completed)
+                                        <span class="whitespace-nowrap rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                                            {{ __('✓ Completed') }}
+                                        </span>
+                                    @else
+                                        <span class="whitespace-nowrap rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                                            {{ __('Not Completed') }}
+                                        </span>
+                                    @endif
+                                </div>
 
                                 <a
-                                    href="{{ route('decks.flashcards', $deck) }}"
+                                    href="{{ route('decks.study', $deck) }}"
                                     class="mt-6 inline-flex items-center justify-center rounded-full bg-cyan-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-cyan-700"
                                     wire:navigate
                                 >
-                                    Manage Flashcards
+                                    Study Deck
                                 </a>
 
-                                <div class="mt-5 flex items-center justify-between border-t border-slate-200 pt-5">
+                                <div class="mt-5 grid grid-cols-3 items-center gap-3 border-t border-slate-200 pt-5">
                                     <a
                                         href="{{ route('decks.edit', $deck) }}"
-                                        class="text-sm font-semibold text-indigo-600 hover:text-indigo-800"
+                                        class="text-left text-sm font-semibold text-indigo-600 hover:text-indigo-800"
                                         wire:navigate
                                     >
                                         {{ __('Edit Deck') }}
                                     </a>
 
+                                    <a
+                                        href="{{ route('decks.flashcards', $deck) }}"
+                                        class="text-center text-sm font-semibold text-indigo-600 hover:text-indigo-800"
+                                        wire:navigate
+                                    >
+                                        {{ __('Manage Cards') }}
+                                    </a>
+
                                     <button
                                         type="button"
-                                        class="text-sm font-semibold text-red-600 hover:text-red-800"
+                                        class="text-right text-sm font-semibold text-red-600 hover:text-red-800"
                                         wire:click="delete({{ $deck->id }})"
-                                        wire:confirm="{{ __('Are you sure you want to delete this deck?') }}"
+                                        wire:confirm="{{ __('Permanently delete this deck and all flashcards inside it? This cannot be undone.') }}"
                                     >
                                         {{ __('Delete') }}
                                     </button>

@@ -126,8 +126,6 @@ class ManageFlashcards extends Component
 
         return view('livewire.pages.manage-flashcards', [
             'flashcards' => $flashcards,
-        ])->layout('layouts.app', [
-            'header' => 'Manage Flashcards — ' . $this->deck->title,
-        ]);
+        ])->layout('layouts.app');
     }
 }
