@@ -23,7 +23,14 @@ class MyDecks extends Component
     public function render(): View
     {
         return view('livewire.my-decks', [
-            'decks' => auth()->user()->decks()->latest()->get(),
+            'decks' => auth()->user()->decks()
+                ->withExists([
+                    'completedBy as is_completed' => function ($query) {
+                        $query->where('users.id', auth()->id());
+                    },
+                ])
+                ->latest()
+                ->get(),
         ]);
     }
 }

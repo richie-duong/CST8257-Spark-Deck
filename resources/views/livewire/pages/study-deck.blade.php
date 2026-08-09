@@ -16,18 +16,20 @@
                 <p class="mt-3 text-lg text-slate-600">Work through each card and check your understanding.</p>
             </div>
 
-            @auth
-                <button
-                    type="button"
-                    wire:click="toggleCompleted"
-                    class="inline-flex items-center justify-center rounded-full border px-6 py-3 text-sm font-semibold transition
-                        {{ $isCompleted
-                            ? 'border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700'
-                            : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50' }}"
-                >
-                    {{ $isCompleted ? 'Completed' : 'Mark as Complete' }}
-                </button>
-            @endauth
+            @if ($total > 0)
+                @auth
+                    <button
+                        type="button"
+                        wire:click="toggleCompleted"
+                        class="inline-flex items-center justify-center rounded-full border px-6 py-3 text-sm font-semibold transition
+                            {{ $isCompleted
+                                ? 'border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700'
+                                : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50' }}"
+                    >
+                        {{ $isCompleted ? 'Completed' : 'Mark as Complete' }}
+                    </button>
+                @endauth
+            @endif
         </div>
 
         @if ($total === 0)
@@ -41,7 +43,7 @@
                     href="{{ route('decks.flashcards', $deck) }}"
                     class="mt-7 inline-flex items-center justify-center rounded-full bg-indigo-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
                 >
-                    Add Flashcards
+                    Manage Cards
                 </a>
             </div>
         @else

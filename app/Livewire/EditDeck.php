@@ -44,6 +44,17 @@ class EditDeck extends Component
         $this->redirectRoute('decks.index', navigate: true);
     }
 
+    public function delete(): void
+    {
+        abort_unless($this->deck->user_id === auth()->id(), 403);
+
+        $this->deck->delete();
+
+        session()->flash('status', 'Deck deleted successfully.');
+
+        $this->redirectRoute('decks.index', navigate: true);
+    }
+
     #[Layout('layouts.app')]
     public function render(): View
     {

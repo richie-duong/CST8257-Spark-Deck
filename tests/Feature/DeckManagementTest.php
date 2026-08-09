@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Livewire\CreateDeck;
 use App\Livewire\EditDeck;
 use App\Livewire\MyDecks;
+use App\Livewire\StudyDeck;
 use App\Models\Deck;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,14 +22,19 @@ class DeckManagementTest extends TestCase
 
         $this->actingAs($user);
 
-        Livewire::test(CreateDeck::class)
+        $component = Livewire::test(CreateDeck::class)
             ->set('title', 'PHP Basics')
             ->set('description', 'Important PHP concepts.')
             ->set('visibility', 'private')
             ->call('save')
             ->assertHasNoErrors()
-            ->assertSessionHas('status', 'Deck created successfully.')
-            ->assertRedirect(route('decks.index'));
+            ->assertSessionHas('success', 'Deck created successfully. Add your first flashcard below.');
+
+        $deck = Deck::where('user_id', $user->id)
+            ->where('title', 'PHP Basics')
+            ->firstOrFail();
+
+        $component->assertRedirect(route('decks.flashcards', $deck));
 
         $this->assertDatabaseHas('decks', [
             'user_id' => $user->id,
@@ -69,6 +75,29 @@ class DeckManagementTest extends TestCase
         Livewire::test(MyDecks::class)
             ->assertSee('My Deck')
             ->assertDontSee('Another User Deck');
+    }
+
+    public function test_my_decks_displays_each_decks_completion_status(): void
+    {
+        $user = User::factory()->create();
+        $completedDeck = Deck::factory()->for($user)->create([
+            'title' => 'Completed Deck',
+        ]);
+        Deck::factory()->for($user)->create([
+            'title' => 'Incomplete Deck',
+        ]);
+
+        $completedDeck->completedBy()->attach($user->id, [
+            'completed_at' => now(),
+        ]);
+
+        $this->actingAs($user);
+
+        Livewire::test(MyDecks::class)
+            ->assertSee('Completed Deck')
+            ->assertSee('✓ Completed')
+            ->assertSee('Incomplete Deck')
+            ->assertSee('Not Completed');
     }
 
     public function test_user_can_edit_their_deck(): void
@@ -128,6 +157,25 @@ class DeckManagementTest extends TestCase
         ]);
     }
 
+    public function test_user_can_delete_their_deck_from_the_edit_page(): void
+    {
+        $user = User::factory()->create();
+        $deck = Deck::factory()->for($user)->create();
+
+        $this->actingAs($user);
+
+        Livewire::test(EditDeck::class, ['deck' => $deck])
+            ->assertSee('Delete Deck')
+            ->assertDontSee('Danger Zone')
+            ->call('delete')
+            ->assertSessionHas('status', 'Deck deleted successfully.')
+            ->assertRedirect(route('decks.index'));
+
+        $this->assertDatabaseMissing('decks', [
+            'id' => $deck->id,
+        ]);
+    }
+
     public function test_user_can_open_flashcard_management_from_their_deck_pages(): void
     {
         $user = User::factory()->create();
@@ -137,9 +185,30 @@ class DeckManagementTest extends TestCase
         $this->actingAs($user);
 
         Livewire::test(MyDecks::class)
-            ->assertSeeHtml('href="'.$flashcardUrl.'"');
+            ->assertSee('Study Deck')
+            ->assertSee('Edit Deck')
+            ->assertSee('Manage Cards')
+            ->assertSee('Delete')
+            ->assertSeeHtml('href="'.$flashcardUrl.'"')
+            ->assertSeeHtml('href="'.route('decks.study', $deck).'"');
 
         Livewire::test(EditDeck::class, ['deck' => $deck])
-            ->assertSeeHtml('href="'.$flashcardUrl.'"');
+            ->assertDontSee('Manage Flashcards')
+            ->assertDontSeeHtml('href="'.$flashcardUrl.'"');
+    }
+
+    public function test_empty_deck_study_page_directs_the_owner_to_manage_cards(): void
+    {
+        $user = User::factory()->create();
+        $deck = Deck::factory()->for($user)->create();
+
+        $this->actingAs($user);
+
+        Livewire::test(StudyDeck::class, ['deck' => $deck])
+            ->assertSee('No flashcards yet')
+            ->assertSee('Add cards to this deck before starting a study session.')
+            ->assertSee('Manage Cards')
+            ->assertSeeHtml('href="'.route('decks.flashcards', $deck).'"')
+            ->assertDontSee('Mark as Complete');
     }
 }
