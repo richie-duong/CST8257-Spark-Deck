@@ -8,22 +8,14 @@
                 ← Back to My Decks
             </a>
 
-            <div class="mt-8 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <div class="mt-8">
                 <div>
                     <span class="inline-flex rounded-full bg-cyan-100 px-4 py-2 text-sm font-semibold text-cyan-700">
                         Deck Settings
                     </span>
                     <h1 class="mt-5 text-4xl font-bold tracking-tight text-slate-900">{{ __('Edit Deck') }}</h1>
-                    <p class="mt-3 text-lg text-slate-600">Update the deck details or continue building its flashcard collection.</p>
+                    <p class="mt-3 text-lg text-slate-600">Update the deck title, description, or visibility.</p>
                 </div>
-
-                <a
-                    href="{{ route('decks.flashcards', $deck) }}"
-                    class="inline-flex items-center justify-center rounded-full bg-cyan-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-cyan-700"
-                    wire:navigate
-                >
-                    Manage Flashcards
-                </a>
             </div>
 
             <div class="mt-10 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-xl sm:p-8">
@@ -65,20 +57,31 @@
                         <x-input-error :messages="$errors->get('visibility')" class="mt-2" />
                     </div>
 
-                    <div class="flex flex-col-reverse gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:justify-end">
-                        <a
-                            href="{{ route('decks.index') }}"
-                            class="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-                            wire:navigate
-                        >
-                            Cancel
-                        </a>
+                    <div class="flex flex-col gap-4 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
                         <button
-                            type="submit"
-                            class="inline-flex items-center justify-center rounded-full bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            type="button"
+                            class="inline-flex items-center justify-center rounded-full bg-red-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                            wire:click="delete"
+                            wire:confirm="{{ __('Permanently delete this deck and all flashcards inside it? This cannot be undone.') }}"
                         >
-                            {{ __('Save Changes') }}
+                            {{ __('Delete Deck') }}
                         </button>
+
+                        <div class="flex flex-col-reverse gap-3 sm:flex-row">
+                            <a
+                                href="{{ route('decks.index') }}"
+                                class="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                                wire:navigate
+                            >
+                                Cancel
+                            </a>
+                            <button
+                                type="submit"
+                                class="inline-flex items-center justify-center rounded-full bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            >
+                                {{ __('Save Changes') }}
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>

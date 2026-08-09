@@ -22,11 +22,11 @@ class CreateDeck extends Component
             'visibility' => ['required', 'in:public,private'],
         ]);
 
-        auth()->user()->decks()->create($validated);
+        $deck = auth()->user()->decks()->create($validated);
 
-        session()->flash('status', 'Deck created successfully.');
+        session()->flash('success', 'Deck created successfully. Add your first flashcard below.');
 
-        $this->redirectRoute('decks.index', navigate: true);
+        $this->redirectRoute('decks.flashcards', $deck, navigate: true);
     }
 
     #[Layout('layouts.app')]
