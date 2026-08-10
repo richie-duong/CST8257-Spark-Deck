@@ -3,9 +3,13 @@
     <div class="absolute right-0 top-0 h-96 w-96 rounded-full bg-indigo-200/30 blur-3xl"></div>
 
     <div class="relative mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-        <a href="{{ route('decks.flashcards', $deck) }}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-800">
-            ← Manage Flashcards
-        </a>
+        @auth
+            @if (Auth::id() === $deck->user_id)
+                <a href="{{ route('decks.flashcards', $deck) }}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-800">
+                    ← Manage Flashcards
+                </a>
+            @endif
+        @endauth
 
         <div class="mt-8 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -32,21 +36,41 @@
             @endif
         </div>
 
-        @if ($total === 0)
-            <div class="mt-10 rounded-3xl border border-slate-200 bg-white/90 p-12 text-center shadow-xl">
-                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-cyan-100 text-2xl font-bold text-cyan-700">
-                    0
+      @if ($total === 0)
+    <div class="mt-10 rounded-3xl border border-slate-200 bg-white/90 p-12 text-center shadow-xl">
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-cyan-100 text-2xl font-bold text-cyan-700">
+            0
+        </div>
+        <h2 class="mt-6 text-2xl font-bold text-slate-900">No flashcards yet</h2>
+        <p class="mt-3 text-slate-600">Add cards to this deck before starting a study session.</p>
+        @auth
+           @if ($total === 0)
+    <div class="mt-10 rounded-3xl border border-slate-200 bg-white/90 p-12 text-center shadow-xl">
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-cyan-100 text-2xl font-bold text-cyan-700">
+            0
+        </div>
+        <h2 class="mt-6 text-2xl font-bold text-slate-900">No flashcards yet</h2>
+        <p class="mt-3 text-slate-600">Add cards to this deck before starting a study session.</p>
+        @auth
+            @if ($total === 0)
+    <div class="mt-10 rounded-3xl border border-slate-200 bg-white/90 p-12 text-center shadow-xl">
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-cyan-100 text-2xl font-bold text-cyan-700">
+            0
+        </div>
+        <h2 class="mt-6 text-2xl font-bold text-slate-900">No flashcards yet</h2>
+        <p class="mt-3 text-slate-600">Add cards to this deck before starting a study session.</p>
+        @auth
+            @if (Auth::id() === $deck->user_id)
+                
+                                href="{{ route('decks.flashcards', $deck) }}"
+                                class="mt-7 inline-flex items-center justify-center rounded-full bg-indigo-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
+            >
+                                Manage Cards
+                            </a>
+                        @endif
+                    @endauth
                 </div>
-                <h2 class="mt-6 text-2xl font-bold text-slate-900">No flashcards yet</h2>
-                <p class="mt-3 text-slate-600">Add cards to this deck before starting a study session.</p>
-                <a
-                    href="{{ route('decks.flashcards', $deck) }}"
-                    class="mt-7 inline-flex items-center justify-center rounded-full bg-indigo-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
-                >
-                    Manage Cards
-                </a>
-            </div>
-        @else
+            @else
             <div class="mt-10 rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-lg">
                 <div class="flex justify-between text-sm font-medium text-slate-500">
                     <span>Card {{ $currentIndex + 1 }} of {{ $total }}</span>
