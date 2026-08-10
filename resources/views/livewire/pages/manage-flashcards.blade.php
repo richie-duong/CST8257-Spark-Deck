@@ -175,15 +175,7 @@
                                     >
                                         Edit
                                     </button>
-                                    <button
-                                        type="button"
-                                        wire:click="removeFromDeck({{ $flashcard->id }})"
-                                        wire:confirm="Remove this flashcard from the deck?"
-                                        class="rounded-full bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700 transition hover:bg-amber-100"
-                                    >
-                                        Remove
-                                    </button>
-                                    <button
+                                   <button
                                         type="button"
                                         wire:click="deleteFlashcard({{ $flashcard->id }})"
                                         wire:confirm="Permanently delete this flashcard? This cannot be undone."
