@@ -1,4 +1,5 @@
 <section class="relative overflow-hidden bg-gradient-to-br from-cyan-50 via-white to-indigo-50 py-16">
+    <div x-on:scroll-to-top.window="window.scrollTo({ top: 0, behavior: 'smooth' })"></div>
     <div class="absolute -left-24 top-12 h-80 w-80 rounded-full bg-cyan-200/30 blur-3xl"></div>
     <div class="absolute right-0 top-0 h-96 w-96 rounded-full bg-indigo-200/30 blur-3xl"></div>
 
