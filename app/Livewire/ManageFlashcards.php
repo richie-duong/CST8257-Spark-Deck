@@ -76,6 +76,8 @@ class ManageFlashcards extends Component
         $this->question           = $flashcard->question;
         $this->answer             = $flashcard->answer;
         $this->showCreateForm     = false;
+
+        $this->dispatch('scroll-to-top');
     }
 
     public function updateFlashcard(): void
