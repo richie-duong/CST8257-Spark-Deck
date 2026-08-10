@@ -3,14 +3,18 @@
     <div class="absolute right-0 top-0 h-96 w-96 rounded-full bg-indigo-200/30 blur-3xl"></div>
 
     <div class="relative mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+
+        {{-- Manage Flashcards link (owner only) --}}
         @auth
             @if (Auth::id() === $deck->user_id)
-                <a href="{{ route('decks.flashcards', $deck) }}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-800">
+                <a href="{{ route('decks.flashcards', $deck) }}"
+                   class="text-sm font-semibold text-indigo-600 hover:text-indigo-800">
                     ← Manage Flashcards
                 </a>
             @endif
         @endauth
 
+        {{-- Page header --}}
         <div class="mt-8 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
                 <span class="inline-flex rounded-full bg-cyan-100 px-4 py-2 text-sm font-semibold text-cyan-700">
@@ -36,41 +40,30 @@
             @endif
         </div>
 
-      @if ($total === 0)
-    <div class="mt-10 rounded-3xl border border-slate-200 bg-white/90 p-12 text-center shadow-xl">
-        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-cyan-100 text-2xl font-bold text-cyan-700">
-            0
-        </div>
-        <h2 class="mt-6 text-2xl font-bold text-slate-900">No flashcards yet</h2>
-        <p class="mt-3 text-slate-600">Add cards to this deck before starting a study session.</p>
-        @auth
-           @if ($total === 0)
-    <div class="mt-10 rounded-3xl border border-slate-200 bg-white/90 p-12 text-center shadow-xl">
-        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-cyan-100 text-2xl font-bold text-cyan-700">
-            0
-        </div>
-        <h2 class="mt-6 text-2xl font-bold text-slate-900">No flashcards yet</h2>
-        <p class="mt-3 text-slate-600">Add cards to this deck before starting a study session.</p>
-        @auth
-            @if ($total === 0)
-    <div class="mt-10 rounded-3xl border border-slate-200 bg-white/90 p-12 text-center shadow-xl">
-        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-cyan-100 text-2xl font-bold text-cyan-700">
-            0
-        </div>
-        <h2 class="mt-6 text-2xl font-bold text-slate-900">No flashcards yet</h2>
-        <p class="mt-3 text-slate-600">Add cards to this deck before starting a study session.</p>
-        @auth
-            @if (Auth::id() === $deck->user_id)
-                
-                                href="{{ route('decks.flashcards', $deck) }}"
-                                class="mt-7 inline-flex items-center justify-center rounded-full bg-indigo-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
-            >
-                                Manage Cards
-                            </a>
-                        @endif
-                    @endauth
+        {{-- Empty state --}}
+        @if ($total === 0)
+            <div class="mt-10 rounded-3xl border border-slate-200 bg-white/90 p-12 text-center shadow-xl">
+                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-cyan-100 text-2xl font-bold text-cyan-700">
+                    0
                 </div>
-            @else
+                <h2 class="mt-6 text-2xl font-bold text-slate-900">No flashcards yet</h2>
+                <p class="mt-3 text-slate-600">Add cards to this deck before starting a study session.</p>
+                @auth
+                    @if (Auth::id() === $deck->user_id)
+                        
+                            href="{{ route('decks.flashcards', $deck) }}"
+                            class="mt-7 inline-flex items-center justify-center rounded-full bg-indigo-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                        >
+                            Manage Cards
+                        </a>
+                    @endif
+                @endauth
+            </div>
+
+        {{-- Study mode --}}
+        @else
+
+            {{-- Progress bar --}}
             <div class="mt-10 rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-lg">
                 <div class="flex justify-between text-sm font-medium text-slate-500">
                     <span>Card {{ $currentIndex + 1 }} of {{ $total }}</span>
@@ -84,43 +77,58 @@
                 </div>
             </div>
 
+           {{-- Flashcard --}}
+        <style>
+                .flashcard-inner {
+                    position: relative;
+                    width: 100%;
+                    min-height: 320px;
+                    transform-style: preserve-3d;
+                    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                .flashcard-inner.is-flipped {
+                    transform: rotateY(180deg);
+                }
+                .flashcard-front,
+                .flashcard-back {
+                    position: absolute;
+                    inset: 0;
+                    backface-visibility: hidden;
+                    -webkit-backface-visibility: hidden;
+                    border-radius: 1.5rem;
+                }
+                .flashcard-back {
+                    transform: rotateY(180deg);
+                }
+            </style>
+
             <div
                 wire:key="card-{{ $currentIndex }}-{{ $resetCount }}"
                 x-data="{ flipped: false }"
                 class="mt-8 cursor-pointer"
+                style="perspective: 1200px;"
                 @click="flipped = !flipped"
             >
-                <div
-                    x-show="!flipped"
-                    x-transition:enter="transition ease-out duration-200"
-                    x-transition:enter-start="opacity-0 scale-95"
-                    x-transition:enter-end="opacity-100 scale-100"
-                    x-transition:leave="transition ease-in duration-150"
-                    x-transition:leave-start="opacity-100 scale-100"
-                    x-transition:leave-end="opacity-0 scale-95"
-                    class="flex min-h-80 flex-col items-center justify-center rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-xl sm:p-12"
-                >
-                    <p class="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-600">Question</p>
-                    <p class="mt-6 text-2xl font-bold leading-relaxed text-slate-900">{{ $currentCard?->question ?? '—' }}</p>
-                    <p class="mt-8 text-sm text-slate-400">Click the card to reveal the answer</p>
-                </div>
+                <div class="flashcard-inner" :class="{ 'is-flipped': flipped }">
 
-                <div
-                    x-show="flipped"
-                    x-transition:enter="transition ease-out duration-200"
-                    x-transition:enter-start="opacity-0 scale-95"
-                    x-transition:enter-end="opacity-100 scale-100"
-                    x-transition:leave="transition ease-in duration-150"
-                    x-transition:leave-start="opacity-100 scale-100"
-                    x-transition:leave-end="opacity-0 scale-95"
-                    class="flex min-h-80 flex-col items-center justify-center rounded-3xl bg-gradient-to-br from-cyan-600 to-indigo-700 p-8 text-center shadow-xl sm:p-12"
-                >
-                    <p class="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-100">Answer</p>
-                    <p class="mt-6 text-2xl font-bold leading-relaxed text-white">{{ $currentCard?->answer ?? '—' }}</p>
-                    <p class="mt-8 text-sm text-indigo-100">Click the card to see the question</p>
+                    {{-- Front - Question --}}
+                    <div class="flashcard-front flex flex-col items-center justify-center border border-slate-200 bg-white p-8 text-center shadow-xl sm:p-12">
+                        <p class="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-600">Question</p>
+                        <p class="mt-6 text-2xl font-bold leading-relaxed text-slate-900">{{ $currentCard?->question ?? '—' }}</p>
+                        <p class="mt-8 text-sm text-slate-400">Click the card to reveal the answer</p>
+                    </div>
+
+                    {{-- Back - Answer --}}
+                    <div class="flashcard-back flex flex-col items-center justify-center bg-gradient-to-br from-cyan-600 to-indigo-700 p-8 text-center shadow-xl sm:p-12">
+                        <p class="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-100">Answer</p>
+                        <p class="mt-6 text-2xl font-bold leading-relaxed text-white">{{ $currentCard?->answer ?? '—' }}</p>
+                        <p class="mt-8 text-sm text-indigo-100">Click the card to see the question</p>
+                    </div>
+
                 </div>
             </div>
 
+            {{-- Navigation --}}
             <div class="mt-8 grid grid-cols-3 gap-3">
                 <button
                     type="button"
@@ -149,6 +157,7 @@
                 </button>
             </div>
 
+            {{-- Dot navigation --}}
             @if ($total <= 20)
                 <div class="mt-7 flex flex-wrap justify-center gap-2">
                     @foreach ($flashcards as $index => $card)
@@ -166,6 +175,7 @@
                 </div>
             @endif
 
+            {{-- End of deck --}}
             @if ($currentIndex === $total - 1)
                 <div class="mt-8 rounded-3xl border border-emerald-200 bg-emerald-50 p-6 text-center shadow-sm">
                     <h2 class="text-xl font-bold text-emerald-800">You reached the end!</h2>
@@ -182,6 +192,8 @@
                     </p>
                 </div>
             @endif
+
         @endif
+
     </div>
 </section>
