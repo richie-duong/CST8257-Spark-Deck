@@ -6,7 +6,9 @@ use App\Models\Deck;
 use App\Models\Flashcard;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.app')]
 class ManageFlashcards extends Component
 {
     public Deck $deck;
@@ -126,6 +128,6 @@ class ManageFlashcards extends Component
 
         return view('livewire.pages.manage-flashcards', [
             'flashcards' => $flashcards,
-        ])->layout('layouts.app');
+        ]);
     }
 }
