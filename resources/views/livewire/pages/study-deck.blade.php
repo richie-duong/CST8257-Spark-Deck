@@ -4,15 +4,26 @@
 
     <div class="relative mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
 
-        {{-- Manage Flashcards link (owner only) --}}
-        @auth
-            @if (Auth::id() === $deck->user_id)
-                <a href="{{ route('decks.flashcards', $deck) }}"
-                   class="text-sm font-semibold text-indigo-600 hover:text-indigo-800">
-                    ← Manage Flashcards
-                </a>
-            @endif
-        @endauth
+        {{-- Top navigation --}}
+        <div class="flex items-center justify-between">
+            <button
+                onclick="history.back()"
+                class="text-sm font-semibold text-indigo-600 hover:text-indigo-800"
+            >
+                ← Go Back
+            </button>
+
+            @auth
+                @if (Auth::id() === $deck->user_id)
+                    
+                       <a href="{{ route('decks.flashcards', $deck) }}"
+                        class="inline-flex items-center justify-center rounded-full bg-cyan-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700"
+                    >
+                        Manage Flashcards
+                    </a>
+                @endif
+            @endauth
+        </div>
 
         {{-- Page header --}}
         <div class="mt-8 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
