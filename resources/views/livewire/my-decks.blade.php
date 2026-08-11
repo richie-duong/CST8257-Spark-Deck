@@ -1,6 +1,5 @@
 <div>
-    <section class="relative overflow-hidden bg-gradient-to-br from-cyan-50 via-white to-indigo-50 py-16 sm:py-20">
-        <div class="absolute -left-24 top-12 h-80 w-80 rounded-full bg-cyan-200/30 blur-3xl"></div>
+    <section class="relative min-h-screen overflow-hidden bg-gradient-to-br from-cyan-50 via-white to-indigo-50 py-16">        <div class="absolute -left-24 top-12 h-80 w-80 rounded-full bg-cyan-200/30 blur-3xl"></div>
         <div class="absolute right-0 top-0 h-96 w-96 rounded-full bg-indigo-200/30 blur-3xl"></div>
 
         <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -55,7 +54,7 @@
                                     </span>
                                 </div>
 
-                                <p class="mt-5 flex-1 leading-7 text-slate-600">
+                                <p class="mt-5 flex-1 leading-7 text-slate-600 break-words">
                                     {{ $deck->description ?: __('No description available.') }}
                                 </p>
 
@@ -116,4 +115,17 @@
             </div>
         </div>
     </section>
+    
+    <!-- Back to Top Button -->
+    <button
+        x-data="{ show: false }"
+        x-show="show"
+        x-transition
+        @scroll.window="show = window.scrollY > 300"
+        @click="window.scrollTo({ top: 0, behavior: 'smooth' })"
+        class="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg transition hover:-translate-y-1 hover:bg-indigo-700 hover:shadow-xl"
+        aria-label="Back to top"
+    >
+        ↑
+    </button>
 </div>

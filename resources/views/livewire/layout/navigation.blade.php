@@ -55,8 +55,10 @@ new class extends Component
                             class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-100 to-indigo-100 shadow-sm transition duration-300 group-hover:-translate-y-0.5 group-hover:shadow-md"
                         >
 
-                            <x-application-logo
-                                class="block h-7 w-auto fill-current text-slate-800"
+                            <img
+                                src="{{ asset('images/spark-deck-logo-narrow.svg') }}"
+                                alt="Spark Deck Logo"
+                                class="block h-9 w-auto"
                             />
 
                         </div>
@@ -101,7 +103,7 @@ new class extends Component
                             href="{{ route('decks.index') }}"
                             wire:navigate
                             class="inline-flex items-center rounded-xl px-4 py-2.5 text-sm font-semibold transition duration-200
-                                {{ request()->routeIs('decks.*')
+                                {{ request()->routeIs('decks.index')
                                     ? 'bg-cyan-50 text-cyan-700 shadow-sm'
                                     : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900' }}"
                         >
@@ -456,7 +458,7 @@ new class extends Component
                         wire:navigate
                         @click="open = false"
                         class="flex items-center rounded-xl px-4 py-3 text-sm font-semibold transition
-                            {{ request()->routeIs('decks.*')
+                            {{ request()->routeIs('decks.index')
                                 ? 'bg-cyan-50 text-cyan-700'
                                 : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}"
                     >

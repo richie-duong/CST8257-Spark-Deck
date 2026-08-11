@@ -49,7 +49,7 @@ new class extends Component
         <div class="mt-8">
 
             <span class="inline-flex rounded-full bg-cyan-100 px-4 py-2 text-sm font-semibold text-cyan-700">
-                📚 Study Deck
+                📚 View Deck
             </span>
 
             <h1 class="mt-5 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
@@ -93,7 +93,7 @@ new class extends Component
                     class="w-full sm:w-auto justify-center !bg-indigo-600 !text-white hover:!bg-indigo-700"
                     wire:navigate
                 >
-                    Study Deck
+                    Study Mode
                 </flux:button>
 
             </div>
@@ -307,5 +307,18 @@ new class extends Component
         </div>
 
     </div>
+
+    <!-- Back to Top Button -->
+    <button
+        x-data="{ show: false }"
+        x-show="show"
+        x-transition
+        @scroll.window="show = window.scrollY > 300"
+        @click="window.scrollTo({ top: 0, behavior: 'smooth' })"
+        class="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg transition hover:-translate-y-1 hover:bg-indigo-700 hover:shadow-xl"
+        aria-label="Back to top"
+    >
+        ↑
+    </button>
 
 </section>
