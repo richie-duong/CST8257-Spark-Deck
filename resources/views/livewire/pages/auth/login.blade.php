@@ -27,7 +27,6 @@ new #[Layout('layouts.guest')] class extends Component
     }
 }; ?>
 
-
 <div>
 
     <!-- Heading -->
@@ -35,7 +34,7 @@ new #[Layout('layouts.guest')] class extends Component
     <div class="mb-8 text-center">
 
         <span
-            class="inline-flex rounded-full bg-cyan-100 px-4 py-2 text-sm font-semibold text-cyan-700"
+            class="mt-5 inline-flex rounded-full bg-cyan-100 px-4 py-2 text-sm font-semibold text-cyan-700"
         >
             Your Study Space
         </span>
