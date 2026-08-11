@@ -37,6 +37,8 @@ Route::get('decks/{deck}/study', StudyDeck::class)
     ->name('decks.study');
 
 Route::get('decks/{deck}', function (Deck $deck) {
+    abort_unless($deck->canBeViewedBy(auth()->user()), 404);
+
     return view('view-deck', compact('deck'));
 })->name('view-deck');
 

@@ -69,7 +69,7 @@ class ManageFlashcards extends Component
 
     public function startEditing(int $flashcardId): void
     {
-        $flashcard = Flashcard::findOrFail($flashcardId);
+        $flashcard = $this->findFlashcardInDeck($flashcardId);
         abort_if($flashcard->user_id !== Auth::id(), 403);
 
         $this->editingFlashcardId = $flashcardId;
@@ -84,7 +84,7 @@ class ManageFlashcards extends Component
     {
         $this->validate();
 
-        $flashcard = Flashcard::findOrFail($this->editingFlashcardId);
+        $flashcard = $this->findFlashcardInDeck($this->editingFlashcardId);
         abort_if($flashcard->user_id !== Auth::id(), 403);
 
         $flashcard->update([
@@ -103,7 +103,7 @@ class ManageFlashcards extends Component
 
     public function deleteFlashcard(int $flashcardId): void
     {
-        $flashcard = Flashcard::findOrFail($flashcardId);
+        $flashcard = $this->findFlashcardInDeck($flashcardId);
         abort_if($flashcard->user_id !== Auth::id(), 403);
 
         $flashcard->delete();
@@ -112,8 +112,17 @@ class ManageFlashcards extends Component
 
     public function removeFromDeck(int $flashcardId): void
     {
+        $this->findFlashcardInDeck($flashcardId);
+
         $this->deck->flashcards()->detach($flashcardId);
         session()->flash('success', 'Flashcard removed from deck.');
+    }
+
+    private function findFlashcardInDeck(?int $flashcardId): Flashcard
+    {
+        return $this->deck->flashcards()
+            ->whereKey($flashcardId)
+            ->firstOrFail();
     }
 
     private function resetForm(): void
