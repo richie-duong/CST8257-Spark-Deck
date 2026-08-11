@@ -16,6 +16,7 @@ new class extends Component
     {
         return Deck::query()
             ->where('visibility', 'public')
+            ->has('flashcards')
 
             // Search
             ->when(trim($this->search) !== '', function ($query) {
@@ -28,7 +29,7 @@ new class extends Component
                 });
             })
 
-            // Sorting
+            // Sort
             ->when($this->sort === 'newest', function ($query) {
                 $query->latest();
             })
@@ -43,7 +44,15 @@ new class extends Component
                     ->orderByDesc('voters_count');
             })
 
-            // Liked filter
+            // My Decks
+            ->when(
+                $this->filter === 'mine' && Auth::check(),
+                function ($query) {
+                    $query->where('user_id', Auth::id());
+                }
+            )
+
+            // Liked
             ->when(
                 $this->filter === 'liked' && Auth::check(),
                 function ($query) {
@@ -53,7 +62,7 @@ new class extends Component
                 }
             )
 
-            // Completed filter
+            // Completed
             ->when(
                 $this->filter === 'completed' && Auth::check(),
                 function ($query) {
@@ -63,6 +72,7 @@ new class extends Component
                 }
             )
 
+            // Relationships
             ->with([
                 'user',
                 'flashcards',
@@ -81,11 +91,6 @@ new class extends Component
 
         $deck = Deck::findOrFail($deckId);
 
-        // Users cannot upvote their own decks.
-        if ($deck->user_id === Auth::id()) {
-            return;
-        }
-
         $alreadyVoted = $deck
             ->voters()
             ->where('user_id', Auth::id())
@@ -97,7 +102,6 @@ new class extends Component
             $deck->voters()->attach(Auth::id());
         }
 
-        // Refresh the deck collection.
         unset($this->decks);
     }
 
@@ -111,15 +115,23 @@ new class extends Component
 
 ?>
 
-<section class="relative overflow-hidden bg-gradient-to-br from-cyan-50 via-white to-indigo-50 py-16 sm:py-20">
+<section class="relative min-h-screen overflow-hidden bg-gradient-to-br from-cyan-50 via-white to-indigo-50 py-16 sm:py-20">
 
     <!-- Decorative Background -->
 
     <div class="pointer-events-none absolute inset-0 overflow-hidden">
 
-        <div class="absolute -left-24 top-12 h-96 w-96 rounded-full bg-cyan-200/40 blur-3xl"></div>
+        <div
+            class="absolute -left-32 top-20 h-96 w-96 rounded-full bg-cyan-200/40 blur-3xl"
+        ></div>
 
-        <div class="absolute right-0 top-0 h-[500px] w-[500px] rounded-full bg-indigo-200/40 blur-3xl"></div>
+        <div
+            class="absolute -right-32 top-0 h-[500px] w-[500px] rounded-full bg-indigo-200/40 blur-3xl"
+        ></div>
+
+        <div
+            class="absolute bottom-[-200px] left-1/3 h-[450px] w-[450px] rounded-full bg-cyan-100/40 blur-3xl"
+        ></div>
 
     </div>
 
@@ -133,152 +145,221 @@ new class extends Component
 
         <div class="max-w-3xl">
 
-            <span class="inline-flex items-center rounded-full bg-cyan-100 px-4 py-2 text-sm font-semibold text-cyan-700">
+            <span
+                class="inline-flex items-center rounded-full bg-cyan-100 px-4 py-2 text-sm font-semibold text-cyan-700"
+            >
                 🌎 Community Library
             </span>
 
-            <h1 class="mt-6 text-5xl font-bold tracking-tight text-slate-900">
+            <h1 class="mt-6 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
                 Browse Community Decks
             </h1>
 
-            <p class="mt-6 text-lg leading-8 text-slate-600">
+            <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
                 Discover flashcard decks created by learners around the world.
-                Search thousands of study cards, explore popular topics,
-                and prepare smarter with Spark Deck.
+                Search study materials, explore popular topics, and prepare
+                smarter with Spark Deck.
             </p>
 
         </div>
 
 
-        <!-- Search & Filters -->
+        <!-- Search & Controls -->
 
-        <div class="mt-12 rounded-3xl border border-slate-200 bg-white/90 p-8 shadow-xl backdrop-blur">
+        <div
+            class="mt-10 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-xl backdrop-blur sm:p-8"
+        >
 
             <!-- Search -->
 
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-end">
+            <div>
 
-                <div class="flex-1">
+                <label
+                    for="search"
+                    class="block text-sm font-semibold text-slate-700"
+                >
+                    Search Public Decks
+                </label>
 
-                    <label
-                        for="search"
-                        class="block text-sm font-semibold text-slate-700"
-                    >
-                        Search Public Decks
-                    </label>
+                <div class="relative mt-3">
 
                     <input
                         id="search"
                         type="search"
                         wire:model.live.debounce.300ms="search"
                         placeholder="Search by title or description..."
-                        class="mt-4 block w-full rounded-2xl border border-slate-200 bg-white px-6 py-4 text-lg shadow-sm transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-200"
+                        class="block w-full rounded-2xl border border-slate-200 bg-white px-5 py-4 text-base text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
                     >
 
-                </div>
+                    @if ($search !== '')
 
+                        <button
+                            type="button"
+                            wire:click="$set('search', '')"
+                            class="absolute right-4 top-1/2 -translate-y-1/2 rounded-full px-2 py-1 text-sm font-semibold text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                            aria-label="Clear search"
+                        >
+                            ✕
+                        </button>
 
-                <!-- Result Count -->
-
-                <div class="shrink-0 rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-center sm:min-w-[140px]">
-
-                    <span class="block text-2xl font-bold text-indigo-600">
-                        {{ $this->decks->count() }}
-                    </span>
-
-                    <span class="text-sm text-slate-500">
-                        {{ $this->decks->count() === 1 ? 'deck' : 'decks' }} found
-                    </span>
+                    @endif
 
                 </div>
 
             </div>
 
 
-            <div class="mt-4 flex flex-wrap items-center gap-3">
+            <!-- Sort & Filter -->
 
-    <!-- Sorting -->
+            <div class="mt-7 flex flex-col gap-5 border-t border-slate-200 pt-6 lg:flex-row lg:items-center lg:justify-between">
 
-    <flux:button
-        wire:click="$set('sort', 'newest')"
-        :variant="$sort === 'newest' ? 'primary' : 'ghost'"
-        class="rounded-full"
-    >
-        🕒 Newest
-    </flux:button>
+                <!-- Sort -->
 
-    <flux:button
-        wire:click="$set('sort', 'popular')"
-        :variant="$sort === 'popular' ? 'primary' : 'ghost'"
-        class="rounded-full"
-    >
-        🔥 Most Popular
-    </flux:button>
+                <div class="flex flex-wrap items-center gap-2">
 
-    <flux:button
-        wire:click="$set('sort', 'oldest')"
-        :variant="$sort === 'oldest' ? 'primary' : 'ghost'"
-        class="rounded-full"
-    >
-        📅 Oldest
-    </flux:button>
+                    <span class="mr-1 text-sm font-semibold text-slate-700">
+                        Sort By:
+                    </span>
 
+                    <button
+                        type="button"
+                        wire:click="$set('sort', 'newest')"
+                        class="
+                            rounded-full px-4 py-2 text-sm font-semibold transition
+                            {{
+                                $sort === 'newest'
+                                    ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-sm'
+                                    : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-cyan-50 hover:text-cyan-700'
+                            }}
+                        "
+                    >
+                        🕒 Newest
+                    </button>
 
-    <!-- Divider -->
+                    <button
+                        type="button"
+                        wire:click="$set('sort', 'popular')"
+                        class="
+                            rounded-full px-4 py-2 text-sm font-semibold transition
+                            {{
+                                $sort === 'popular'
+                                    ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-sm'
+                                    : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-cyan-50 hover:text-cyan-700'
+                            }}
+                        "
+                    >
+                        🔥 Most Popular
+                    </button>
 
-    <div class="mx-1 hidden h-8 w-px bg-slate-200 sm:block"></div>
+                    <button
+                        type="button"
+                        wire:click="$set('sort', 'oldest')"
+                        class="
+                            rounded-full px-4 py-2 text-sm font-semibold transition
+                            {{
+                                $sort === 'oldest'
+                                    ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-sm'
+                                    : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-cyan-50 hover:text-cyan-700'
+                            }}
+                        "
+                    >
+                        📅 Oldest
+                    </button>
 
-
-    <!-- Filters -->
-
-    <flux:button
-        wire:click="$set('filter', 'all')"
-        :variant="$filter === 'all' ? 'primary' : 'ghost'"
-        class="rounded-full"
-    >
-        All Decks
-    </flux:button>
-
-    @auth
-
-        <flux:button
-            wire:click="$set('filter', 'liked')"
-            :variant="$filter === 'liked' ? 'primary' : 'ghost'"
-            class="rounded-full"
-        >
-            👍 Liked
-        </flux:button>
-
-        <flux:button
-            wire:click="$set('filter', 'completed')"
-            :variant="$filter === 'completed' ? 'primary' : 'ghost'"
-            class="rounded-full"
-        >
-            ✓ Completed
-        </flux:button>
-
-    @endauth
+                </div>
 
 
-    <!-- Reset -->
+                <!-- Filter -->
 
-    <div class="mx-1 hidden h-8 w-px bg-slate-200 sm:block"></div>
+                <div class="flex flex-wrap items-center gap-2">
 
-    <flux:button
-        wire:click="resetFilters"
-        variant="ghost"
-        icon="arrow-path"
-        class="rounded-full"
-    >
-        Reset
-    </flux:button>
+                    @auth
 
-</div>
+                        <span class="mr-1 text-sm font-semibold text-slate-700">
+                            Filter By:
+                        </span>
+
+                        <button
+                            type="button"
+                            wire:click="$set('filter', 'all')"
+                            class="
+                                rounded-full px-4 py-2 text-sm font-semibold transition
+                                {{
+                                    $filter === 'all'
+                                        ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-sm'
+                                        : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-cyan-50 hover:text-cyan-700'
+                                }}
+                            "
+                        >
+                            All
+                        </button>
+
+                        <button
+                            type="button"
+                            wire:click="$set('filter', 'mine')"
+                            class="
+                                rounded-full px-4 py-2 text-sm font-semibold transition
+                                {{
+                                    $filter === 'mine'
+                                        ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-sm'
+                                        : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-cyan-50 hover:text-cyan-700'
+                                }}
+                            "
+                        >
+                            ✨ My Decks
+                        </button>
+
+                        <button
+                            type="button"
+                            wire:click="$set('filter', 'liked')"
+                            class="
+                                rounded-full px-4 py-2 text-sm font-semibold transition
+                                {{
+                                    $filter === 'liked'
+                                        ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-sm'
+                                        : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-cyan-50 hover:text-cyan-700'
+                                }}
+                            "
+                        >
+                            👍 Liked
+                        </button>
+
+                        <button
+                            type="button"
+                            wire:click="$set('filter', 'completed')"
+                            class="
+                                rounded-full px-4 py-2 text-sm font-semibold transition
+                                {{
+                                    $filter === 'completed'
+                                        ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-sm'
+                                        : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-cyan-50 hover:text-cyan-700'
+                                }}
+                            "
+                        >
+                            ✓ Completed
+                        </button>
+
+                    @endauth
+
+
+                    <!-- Reset -->
+
+                    <button
+                        type="button"
+                        wire:click="resetFilters"
+                        class="rounded-full px-4 py-2 text-sm font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+                    >
+                        ↻ Reset
+                    </button>
+
+                </div>
+
+            </div>
 
         </div>
 
 
-        <!-- Deck Results -->
+        <!-- Results -->
 
         <div class="mt-12">
 
@@ -286,24 +367,61 @@ new class extends Component
 
                 <!-- Empty State -->
 
-                <div class="rounded-3xl border border-slate-200 bg-white/90 p-12 text-center shadow-xl">
+                <div
+                    class="rounded-3xl border border-slate-200 bg-white/90 p-12 text-center shadow-xl"
+                >
 
-                    <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-cyan-100 text-5xl">
+                    <div
+                        class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-cyan-100 text-4xl"
+                    >
                         📚
                     </div>
 
-                    <h3 class="mt-8 text-3xl font-bold text-slate-900">
+                    <h3 class="mt-7 text-2xl font-bold text-slate-900">
                         No Decks Found
                     </h3>
 
-                    <p class="mx-auto mt-4 max-w-lg text-lg text-slate-600">
+                    <p class="mx-auto mt-3 max-w-lg text-base leading-7 text-slate-600">
                         We couldn't find any public decks matching your search.
                         Try another keyword, filter, or browse the newest community decks.
                     </p>
 
+                    <div class="mt-6 flex justify-center">
+
+                        <button
+                            type="button"
+                            wire:click="resetFilters"
+                            class="rounded-full bg-gradient-to-r from-cyan-500 to-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+                        >
+                            Reset Filters
+                        </button>
+
+                    </div>
+
                 </div>
 
             @else
+
+                <!-- Results Header -->
+
+                <div class="mb-6 flex items-end justify-between">
+
+                    <div>
+
+                        <h2 class="text-2xl font-bold text-slate-900">
+                            Public Decks
+                        </h2>
+
+                        <p class="mt-1 text-sm text-slate-500">
+                            {{ $this->decks->count() }}
+                            {{ $this->decks->count() === 1 ? 'deck' : 'decks' }}
+                            found
+                        </p>
+
+                    </div>
+
+                </div>
+
 
                 <!-- Deck Grid -->
 
@@ -312,11 +430,16 @@ new class extends Component
                     @foreach ($this->decks as $deck)
 
                         @php
+
                             $isLiked = Auth::check()
                                 && $deck->voters->contains('id', Auth::id());
 
                             $isCompleted = Auth::check()
                                 && $deck->completedBy->contains('id', Auth::id());
+
+                            $isOwner = Auth::check()
+                                && $deck->user_id === Auth::id();
+
                         @endphp
 
 
@@ -324,12 +447,30 @@ new class extends Component
 
                         <article
                             wire:key="deck-{{ $deck->id }}"
-                            class="group rounded-3xl border p-7 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl
-                                {{ $isCompleted
-                                    ? 'border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-cyan-50'
-                                    : 'border-slate-200 bg-white/95' }}"
-                        >
+                            class="
+                                group
+                                flex
+                                flex-col
+                                rounded-3xl
+                                border
+                                p-7
+                                shadow-sm
+                                transition
+                                duration-300
+                                hover:-translate-y-1
+                                hover:shadow-xl
 
+                                {{
+                                    $isCompleted
+                                        ? 'border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-cyan-50'
+                                        : (
+                                            $isOwner
+                                                ? 'border-cyan-300 bg-cyan-100'
+                                                : 'border-slate-200 bg-white/95'
+                                        )
+                                }}
+                            "
+                        >
 
                             <!-- Header -->
 
@@ -337,17 +478,33 @@ new class extends Component
 
                                 <div class="min-w-0">
 
-                                    <h3 class="text-2xl font-bold text-slate-900 transition group-hover:text-cyan-600">
+                                    <h3
+                                        class="break-words text-2xl font-bold text-slate-900 transition group-hover:text-cyan-600"
+                                    >
                                         {{ $deck->title }}
                                     </h3>
 
-                                    <p class="mt-2 text-sm text-slate-500">
-                                        by
+                                    <div class="mt-2 flex flex-wrap items-center gap-2">
 
-                                        <span class="font-semibold text-slate-700">
-                                            {{ $deck->user->name }}
-                                        </span>
-                                    </p>
+                                        <p class="text-sm text-slate-500">
+                                            by
+
+                                            <span class="font-semibold text-slate-700">
+                                                {{ $deck->user->name }}
+                                            </span>
+                                        </p>
+
+                                        @if ($isOwner)
+
+                                            <span
+                                                class="inline-flex items-center rounded-full bg-cyan-600 px-3 py-1 text-xs font-semibold text-white shadow-sm"
+                                            >
+                                                ✨ Your Deck
+                                            </span>
+
+                                        @endif
+
+                                    </div>
 
                                 </div>
 
@@ -356,30 +513,37 @@ new class extends Component
 
                                 @auth
 
-                                    @if ($deck->user_id !== Auth::id())
+                                    <button
+                                        type="button"
+                                        wire:click="toggleUpvote({{ $deck->id }})"
+                                        class="
+                                            shrink-0
+                                            rounded-full
+                                            px-4
+                                            py-2
+                                            text-sm
+                                            font-medium
+                                            transition
 
-                                        <button
-                                            type="button"
-                                            wire:click="toggleUpvote({{ $deck->id }})"
-                                            class="shrink-0 rounded-full px-4 py-2 text-sm font-medium transition
-                                                {{ $isLiked
-                                                    ? 'bg-amber-100 text-amber-700 ring-1 ring-amber-200'
-                                                    : 'bg-white text-slate-600 shadow-sm ring-1 ring-slate-200 hover:bg-amber-50 hover:text-amber-700' }}"
-                                            title="{{ $isLiked ? 'Remove upvote' : 'Upvote this deck' }}"
-                                        >
-                                            👍
-                                        </button>
-
-                                    @else
-
-                                        <div
-                                            class="shrink-0 rounded-full bg-white/80 px-4 py-2 text-sm text-slate-400 ring-1 ring-slate-200"
-                                            title="You cannot upvote your own deck."
-                                        >
-                                            👍
-                                        </div>
-
-                                    @endif
+                                            {{
+                                                $isLiked
+                                                    ? 'bg-green-100 text-green-700 ring-1 ring-green-200 hover:bg-green-200'
+                                                    : 'bg-white text-slate-600 shadow-sm ring-1 ring-slate-200 hover:bg-cyan-50 hover:text-cyan-700'
+                                            }}
+                                        "
+                                        title="{{
+                                            $isLiked
+                                                ? 'Remove your upvote'
+                                                : 'Upvote this deck'
+                                        }}"
+                                        aria-label="{{
+                                            $isLiked
+                                                ? 'Remove your upvote'
+                                                : 'Upvote this deck'
+                                        }}"
+                                    >
+                                        👍
+                                    </button>
 
                                 @else
 
@@ -397,83 +561,83 @@ new class extends Component
 
                             <!-- Description -->
 
-                            <p class="mt-6 min-h-[84px] leading-7 text-slate-600">
+                            <p class="mt-6 min-h-[84px] break-words leading-7 text-slate-600">
                                 {{ $deck->description ?: 'No description available.' }}
                             </p>
 
 
                             <!-- Statistics -->
 
-<div class="mt-8 grid grid-cols-2 gap-4">
+                            <div class="mt-8 grid grid-cols-2 gap-4">
 
-    <!-- Flashcards -->
+                                <div
+                                    class="rounded-2xl border border-cyan-200 bg-cyan-50 p-5"
+                                >
 
-    <div
-        class="rounded-2xl border border-cyan-200 bg-cyan-50 p-5"
-    >
+                                    <p class="text-3xl font-bold text-cyan-600">
+                                        {{ $deck->flashcards->count() }}
+                                    </p>
 
-        <p class="text-3xl font-bold text-cyan-600">
-            {{ $deck->flashcards->count() }}
-        </p>
+                                    <p class="mt-2 text-sm text-slate-500">
+                                        Flashcards
+                                    </p>
 
-        <p class="mt-2 text-sm text-slate-500">
-            Flashcards
-        </p>
-
-    </div>
+                                </div>
 
 
-    <!-- Upvotes -->
+                                <div
+                                    class="rounded-2xl border border-indigo-200 bg-indigo-50 p-5"
+                                >
 
-    <div
-        class="rounded-2xl border border-indigo-200 bg-indigo-50 p-5"
-    >
+                                    <p class="text-3xl font-bold text-indigo-600">
+                                        {{ $deck->voters->count() }}
+                                    </p>
 
-        <p class="text-3xl font-bold text-indigo-600">
-            {{ $deck->voters->count() }}
-        </p>
+                                    <p class="mt-2 text-sm text-slate-500">
+                                        Upvotes
+                                    </p>
 
-        <p class="mt-2 text-sm text-slate-500">
-            Upvotes
-        </p>
+                                </div>
 
-    </div>
-
-</div>
+                            </div>
 
 
-                            <!-- Tags & Date -->
+                            <!-- Bottom Information -->
 
                             <div class="mt-6 flex items-center justify-between gap-3">
 
                                 <div class="flex flex-wrap items-center gap-2">
 
-                                    <!-- Visibility -->
-
                                     <span
-                                        class="rounded-full px-4 py-2 text-sm font-medium
-                                            {{ $isCompleted
-                                                ? 'bg-white/80 text-slate-600 ring-1 ring-emerald-200'
-                                                : 'bg-slate-100 text-slate-600' }}"
+                                        class="
+                                            rounded-full
+                                            px-4
+                                            py-2
+                                            text-sm
+                                            font-medium
+
+                                            {{
+                                                $isCompleted
+                                                    ? 'bg-white/80 text-slate-600 ring-1 ring-emerald-200'
+                                                    : 'bg-slate-100 text-slate-600'
+                                            }}
+                                        "
                                     >
                                         🌎 {{ ucfirst($deck->visibility) }}
                                     </span>
 
+                                    @if ($isCompleted)
 
-                                    <!-- Completed -->
+                                        <span
+                                            class="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm"
+                                        >
+                                            ✓ Completed
+                                        </span>
 
-@if ($isCompleted)
-
-    <span class="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm">
-        ✓ Completed
-    </span>
-
-@endif
+                                    @endif
 
                                 </div>
 
-
-                                <!-- Created -->
 
                                 <span class="shrink-0 text-sm text-slate-400">
                                     {{ $deck->created_at->diffForHumans() }}
@@ -486,15 +650,13 @@ new class extends Component
 
                             <div class="mt-8">
 
-                                <flux:button
-                                    as="a"
+                                <a
                                     href="{{ route('view-deck', ['deck' => $deck]) }}"
-                                    variant="primary"
-                                    class="w-full justify-center"
                                     wire:navigate
+                                    class="flex w-full items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
                                 >
                                     View Deck →
-                                </flux:button>
+                                </a>
 
                             </div>
 
@@ -509,5 +671,20 @@ new class extends Component
         </div>
 
     </div>
+
+
+    <!-- Back to Top Button -->
+
+    <button
+        x-data="{ show: false }"
+        x-show="show"
+        x-transition
+        @scroll.window="show = window.scrollY > 300"
+        @click="window.scrollTo({ top: 0, behavior: 'smooth' })"
+        class="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-indigo-600 text-white shadow-lg transition hover:-translate-y-1 hover:shadow-xl"
+        aria-label="Back to top"
+    >
+        ↑
+    </button>
 
 </section>

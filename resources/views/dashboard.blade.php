@@ -314,5 +314,18 @@
 
     </div>
 
+    <!-- Back to Top Button -->
+    <button
+        x-data="{ show: false }"
+        x-show="show"
+        x-transition
+        @scroll.window="show = window.scrollY > 300"
+        @click="window.scrollTo({ top: 0, behavior: 'smooth' })"
+        class="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg transition hover:-translate-y-1 hover:bg-indigo-700 hover:shadow-xl"
+        aria-label="Back to top"
+    >
+        ↑
+    </button>
+
 </section>
 </x-app-layout>

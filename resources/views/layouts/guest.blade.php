@@ -7,6 +7,12 @@
 
     <title>{{ config('app.name', 'Spark Deck') }}</title>
 
+    <link
+        rel="icon"
+        type="image/svg+xml"
+        href="{{ asset('images/spark-deck-logo-narrow.svg') }}"
+    >
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link
@@ -73,11 +79,11 @@
                     <div
                         class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-100 to-indigo-100 shadow-sm transition duration-300 group-hover:-translate-y-0.5 group-hover:shadow-md"
                     >
-
-                        <x-application-logo
-                            class="h-7 w-auto fill-current text-slate-800"
+                        <img
+                            src="{{ asset('images/spark-deck-logo-narrow.svg') }}"
+                            alt="SparkDeck"
+                            class="h-7 w-auto"
                         />
-
                     </div>
 
                     <span class="text-lg font-bold tracking-tight text-slate-900">
