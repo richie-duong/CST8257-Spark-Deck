@@ -21,6 +21,8 @@ class StudyDeck extends Component
 
     public function mount(Deck $deck): void
     {
+        abort_unless($deck->canBeViewedBy(Auth::user()), 404);
+
         $this->deck = $deck;
 
         if (Auth::check()) {

@@ -39,4 +39,10 @@ class Deck extends Model
         return $this->belongsToMany(User::class, 'completed_decks')
             ->withPivot('completed_at');
     }
+
+    public function canBeViewedBy(?User $user): bool
+    {
+        return $this->visibility === 'public'
+            || $this->user_id === $user?->id;
+    }
 }
