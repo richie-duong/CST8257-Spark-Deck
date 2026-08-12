@@ -10,7 +10,7 @@ new class extends Component
 
     public string $sort = 'newest';
 
-    public string $filter = 'all';
+    public array $filters = [];
 
     public function getDecksProperty()
     {
@@ -46,7 +46,7 @@ new class extends Component
 
             // My Decks
             ->when(
-                $this->filter === 'mine' && Auth::check(),
+                in_array('mine', $this->filters) && Auth::check(),
                 function ($query) {
                     $query->where('user_id', Auth::id());
                 }
@@ -54,7 +54,7 @@ new class extends Component
 
             // Liked
             ->when(
-                $this->filter === 'liked' && Auth::check(),
+                in_array('liked', $this->filters) && Auth::check(),
                 function ($query) {
                     $query->whereHas('voters', function ($query) {
                         $query->where('users.id', Auth::id());
@@ -64,7 +64,7 @@ new class extends Component
 
             // Completed
             ->when(
-                $this->filter === 'completed' && Auth::check(),
+                in_array('completed', $this->filters) && Auth::check(),
                 function ($query) {
                     $query->whereHas('completedBy', function ($query) {
                         $query->where('users.id', Auth::id());
@@ -105,11 +105,22 @@ new class extends Component
         unset($this->decks);
     }
 
+    public function toggleFilter(string $filter): void
+    {
+        if (in_array($filter, $this->filters)) {
+            $this->filters = array_values(
+                array_diff($this->filters, [$filter])
+            );
+        } else {
+            $this->filters[] = $filter;
+        }
+    }
+
     public function resetFilters(): void
     {
         $this->search = '';
         $this->sort = 'newest';
-        $this->filter = 'all';
+        $this->filters = [];
     }
 };
 
@@ -169,6 +180,46 @@ new class extends Component
         <div
             class="mt-10 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-xl backdrop-blur sm:p-8"
         >
+
+            @guest
+
+                <!-- Guest Call to Action -->
+
+                <div class="mb-7 flex flex-col gap-4 rounded-2xl border border-cyan-200 bg-gradient-to-r from-cyan-50 to-indigo-50 p-5 sm:flex-row sm:items-center sm:justify-between">
+
+                    <div class="flex items-start gap-4">
+
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-xl shadow-sm">
+                            ✨
+                        </div>
+
+                        <div>
+
+                            <h2 class="font-bold text-slate-900">
+                                Want to contribute to the community?
+                            </h2>
+
+                            <p class="mt-1 text-sm leading-6 text-slate-600">
+                                Guests can browse and study public decks with limited features.
+                                Register to create decks, upvote useful content, and track your progress.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <a
+                        href="{{ route('register') }}"
+                        wire:navigate
+                        class="inline-flex shrink-0 items-center justify-center rounded-full bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-md"
+                    >
+                        Create an Account
+                    </a>
+
+                </div>
+
+            @endguest
+
 
             <!-- Search -->
 
@@ -281,26 +332,11 @@ new class extends Component
 
                         <button
                             type="button"
-                            wire:click="$set('filter', 'all')"
+                            wire:click="toggleFilter('mine')"
                             class="
                                 rounded-full px-4 py-2 text-sm font-semibold transition
                                 {{
-                                    $filter === 'all'
-                                        ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-sm'
-                                        : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-cyan-50 hover:text-cyan-700'
-                                }}
-                            "
-                        >
-                            All
-                        </button>
-
-                        <button
-                            type="button"
-                            wire:click="$set('filter', 'mine')"
-                            class="
-                                rounded-full px-4 py-2 text-sm font-semibold transition
-                                {{
-                                    $filter === 'mine'
+                                    in_array('mine', $filters)
                                         ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-sm'
                                         : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-cyan-50 hover:text-cyan-700'
                                 }}
@@ -311,11 +347,11 @@ new class extends Component
 
                         <button
                             type="button"
-                            wire:click="$set('filter', 'liked')"
+                            wire:click="toggleFilter('liked')"
                             class="
                                 rounded-full px-4 py-2 text-sm font-semibold transition
                                 {{
-                                    $filter === 'liked'
+                                    in_array('liked', $filters)
                                         ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-sm'
                                         : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-cyan-50 hover:text-cyan-700'
                                 }}
@@ -326,11 +362,11 @@ new class extends Component
 
                         <button
                             type="button"
-                            wire:click="$set('filter', 'completed')"
+                            wire:click="toggleFilter('completed')"
                             class="
                                 rounded-full px-4 py-2 text-sm font-semibold transition
                                 {{
-                                    $filter === 'completed'
+                                    in_array('completed', $filters)
                                         ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-sm'
                                         : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-cyan-50 hover:text-cyan-700'
                                 }}
@@ -402,7 +438,7 @@ new class extends Component
 
             @else
 
-                <!-- Results Header -->
+                            <!-- Results Header -->
 
                 <div class="mb-6 flex items-end justify-between">
 
@@ -545,15 +581,6 @@ new class extends Component
                                         👍
                                     </button>
 
-                                @else
-
-                                    <div
-                                        class="shrink-0 rounded-full bg-white/80 px-4 py-2 text-sm text-slate-500 ring-1 ring-slate-200"
-                                        title="Log in to upvote decks."
-                                    >
-                                        👍
-                                    </div>
-
                                 @endauth
 
                             </div>
@@ -570,6 +597,8 @@ new class extends Component
 
                             <div class="mt-8 grid grid-cols-2 gap-4">
 
+                                <!-- Flashcards -->
+
                                 <div
                                     class="rounded-2xl border border-cyan-200 bg-cyan-50 p-5"
                                 >
@@ -579,11 +608,13 @@ new class extends Component
                                     </p>
 
                                     <p class="mt-2 text-sm text-slate-500">
-                                        Flashcards
+                                        📚 Flashcards
                                     </p>
 
                                 </div>
 
+
+                                <!-- Upvotes -->
 
                                 <div
                                     class="rounded-2xl border border-indigo-200 bg-indigo-50 p-5"
@@ -594,7 +625,7 @@ new class extends Component
                                     </p>
 
                                     <p class="mt-2 text-sm text-slate-500">
-                                        Upvotes
+                                        👍 Upvotes
                                     </p>
 
                                 </div>
@@ -653,7 +684,7 @@ new class extends Component
                                 <a
                                     href="{{ route('view-deck', ['deck' => $deck]) }}"
                                     wire:navigate
-                                    class="flex w-full items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+                                    class="flex w-full items-center justify-center rounded-full bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-lg"
                                 >
                                     View Deck →
                                 </a>
@@ -674,14 +705,13 @@ new class extends Component
 
 
     <!-- Back to Top Button -->
-
     <button
         x-data="{ show: false }"
         x-show="show"
         x-transition
         @scroll.window="show = window.scrollY > 300"
         @click="window.scrollTo({ top: 0, behavior: 'smooth' })"
-        class="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-indigo-600 text-white shadow-lg transition hover:-translate-y-1 hover:shadow-xl"
+        class="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg transition hover:-translate-y-1 hover:bg-indigo-700 hover:shadow-xl"
         aria-label="Back to top"
     >
         ↑
