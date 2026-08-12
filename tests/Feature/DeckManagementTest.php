@@ -206,7 +206,7 @@ class DeckManagementTest extends TestCase
 
         Livewire::test(StudyDeck::class, ['deck' => $deck])
             ->assertSee('No flashcards yet')
-            ->assertSee('There are no cards in this deck available to study.')
+            ->assertSee('This deck does not have any flashcards available to study yet.')
             ->assertSee('Manage Flashcards')
             ->assertSeeHtml('href="'.route('decks.flashcards', $deck).'"')
             ->assertDontSee('Mark as Complete');
