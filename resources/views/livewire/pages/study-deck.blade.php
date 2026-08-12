@@ -50,7 +50,7 @@
 
         <!-- Header -->
 
-        <div class="mt-8 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <div class="mt-8">
 
             <div>
 
@@ -65,16 +65,22 @@
                     {{ $deck->title }}
                 </h1>
 
+            </div>
+
+
+            <div class="mt-3 flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+
+                <div class="min-w-0 flex-1">
 
                 @if ($deck->description)
 
-                    <p class="mt-3 max-w-2xl text-lg leading-relaxed text-slate-600">
+                    <p class="max-w-2xl text-lg leading-relaxed text-slate-600">
                         {{ $deck->description }}
                     </p>
 
                 @else
 
-                    <p class="mt-3 text-lg text-slate-600">
+                    <p class="text-lg text-slate-600">
                         Work through each card and check your understanding.
                     </p>
 
@@ -87,7 +93,7 @@
 
             @if ($total > 0)
 
-                <div class="flex flex-wrap items-center gap-3">
+                <div class="flex shrink-0 flex-nowrap items-center gap-3">
 
 
                     <!-- Upvote -->
