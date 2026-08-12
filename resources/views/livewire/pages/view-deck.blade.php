@@ -10,6 +10,8 @@ new class extends Component
 
     public bool $isCompleted = false;
 
+    public bool $isLiked = false;
+
     public function mount(Deck $deck): void
     {
         $this->deck = $deck;
@@ -18,7 +20,33 @@ new class extends Component
             $this->isCompleted = $deck->completedBy()
                 ->where('user_id', Auth::id())
                 ->exists();
+
+            $this->isLiked = $deck->voters()
+                ->where('user_id', Auth::id())
+                ->exists();
         }
+    }
+
+    public function toggleUpvote(): void
+    {
+        if (! Auth::check()) {
+            return;
+        }
+
+        $alreadyVoted = $this->deck
+            ->voters()
+            ->where('user_id', Auth::id())
+            ->exists();
+
+        if ($alreadyVoted) {
+            $this->deck->voters()->detach(Auth::id());
+            $this->isLiked = false;
+        } else {
+            $this->deck->voters()->attach(Auth::id());
+            $this->isLiked = true;
+        }
+
+        $this->deck->load('voters');
     }
 };
 
@@ -26,10 +54,20 @@ new class extends Component
 
 <section class="relative overflow-hidden bg-gradient-to-br from-cyan-50 via-white to-indigo-50">
 
+    <!-- Decorative Background -->
+
     <div class="pointer-events-none absolute inset-0 overflow-hidden">
-        <div class="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-cyan-100/40 blur-3xl"></div>
-        <div class="absolute top-1/3 -left-32 h-80 w-80 rounded-full bg-indigo-100/30 blur-3xl"></div>
+
+        <div
+            class="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-cyan-100/40 blur-3xl"
+        ></div>
+
+        <div
+            class="absolute top-1/3 -left-32 h-80 w-80 rounded-full bg-indigo-100/30 blur-3xl"
+        ></div>
+
     </div>
+
 
     <div class="relative mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
 
@@ -48,7 +86,9 @@ new class extends Component
 
         <div class="mt-8">
 
-            <span class="inline-flex rounded-full bg-cyan-100 px-4 py-2 text-sm font-semibold text-cyan-700">
+            <span
+                class="inline-flex rounded-full bg-cyan-100 px-4 py-2 text-sm font-semibold text-cyan-700"
+            >
                 📚 View Deck
             </span>
 
@@ -57,9 +97,11 @@ new class extends Component
             </h1>
 
             @if ($deck->description)
-                <p class="mt-4 max-w-3xl text-lg leading-8 text-slate-600">
+
+                <p class="mt-4 max-w-3xl break-words text-lg leading-8 text-slate-600">
                     {{ $deck->description }}
                 </p>
+
             @endif
 
         </div>
@@ -87,14 +129,13 @@ new class extends Component
 
                 </div>
 
-                <flux:button
-                    as="a"
+                <a
                     href="{{ route('decks.study', $deck) }}"
-                    class="w-full sm:w-auto justify-center !bg-indigo-600 !text-white hover:!bg-indigo-700"
                     wire:navigate
+                    class="inline-flex w-full items-center justify-center rounded-full bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-md sm:w-auto"
                 >
                     Study Mode
-                </flux:button>
+                </a>
 
             </div>
 
@@ -137,17 +178,60 @@ new class extends Component
                 </div>
 
 
-                <!-- Visibility -->
+                <!-- Upvotes -->
 
                 <div class="p-6">
 
                     <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                        Visibility
+                        Upvotes
                     </p>
 
-                    <span class="mt-3 inline-flex rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700">
-                        {{ ucfirst($deck->visibility) }}
-                    </span>
+                    <p class="mt-3 text-3xl font-bold text-indigo-600">
+                        👍 {{ $deck->voters->count() }}
+                    </p>
+
+                    @auth
+
+                        <button
+                            type="button"
+                            wire:click="toggleUpvote"
+                            wire:loading.attr="disabled"
+                            wire:target="toggleUpvote"
+                            class="
+                                mt-4
+                                inline-flex
+                                items-center
+                                justify-center
+                                gap-2
+                                rounded-full
+                                px-4
+                                py-2
+                                text-sm
+                                font-semibold
+                                shadow-sm
+                                transition
+                                hover:-translate-y-0.5
+                                hover:shadow-md
+
+                                {{
+                                    $isLiked
+                                        ? 'bg-green-100 text-green-700 ring-1 ring-green-200 hover:bg-green-200'
+                                        : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                                }}
+                            "
+                        >
+
+                            <span wire:loading.remove wire:target="toggleUpvote">
+                                {{ $isLiked ? '👍 Upvoted' : '👍 Upvote' }}
+                            </span>
+
+                            <span wire:loading wire:target="toggleUpvote">
+                                Updating...
+                            </span>
+
+                        </button>
+
+                    @endauth
 
                 </div>
 
@@ -164,13 +248,17 @@ new class extends Component
 
                         @if ($isCompleted)
 
-                            <span class="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700">
+                            <span
+                                class="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700"
+                            >
                                 ✓ Completed
                             </span>
 
                         @else
 
-                            <span class="mt-3 inline-flex items-center rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-600">
+                            <span
+                                class="mt-3 inline-flex items-center rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-600"
+                            >
                                 Not Completed
                             </span>
 
@@ -178,7 +266,9 @@ new class extends Component
 
                     @else
 
-                        <span class="mt-3 inline-flex items-center rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-600">
+                        <span
+                            class="mt-3 inline-flex items-center rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-600"
+                        >
                             Log in to track
                         </span>
 
@@ -220,7 +310,9 @@ new class extends Component
 
                 </div>
 
-                <span class="hidden rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-indigo-600 shadow-sm sm:inline-flex">
+                <span
+                    class="hidden rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-indigo-600 shadow-sm sm:inline-flex"
+                >
                     {{ $deck->flashcards->count() }}
                     {{ $deck->flashcards->count() === 1 ? 'Card' : 'Cards' }}
                 </span>
@@ -234,7 +326,9 @@ new class extends Component
 
                 @forelse($deck->flashcards as $index => $flashcard)
 
-                    <article class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+                    <article
+                        class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
+                    >
 
                         <!-- Card Header -->
 
@@ -244,7 +338,9 @@ new class extends Component
                                 Flashcard #{{ $index + 1 }}
                             </h3>
 
-                            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">
+                            <span
+                                class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500"
+                            >
                                 {{ $index + 1 }} / {{ $deck->flashcards->count() }}
                             </span>
 
@@ -286,7 +382,9 @@ new class extends Component
 
                     <div class="rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-sm">
 
-                        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-xl">
+                        <div
+                            class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-xl"
+                        >
                             📚
                         </div>
 
@@ -308,7 +406,9 @@ new class extends Component
 
     </div>
 
+
     <!-- Back to Top Button -->
+
     <button
         x-data="{ show: false }"
         x-show="show"
