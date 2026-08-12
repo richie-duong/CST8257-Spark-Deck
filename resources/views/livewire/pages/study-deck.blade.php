@@ -22,7 +22,14 @@
 
             <button
                 type="button"
-                onclick="history.back()"
+                onclick="
+                    if (window.history.length > 1) {
+                        window.addEventListener('popstate', () => window.location.reload(), { once: true });
+                        window.history.back();
+                    } else {
+                        window.location.href = '{{ route('view-deck', $deck) }}';
+                    }
+                "
                 class="text-sm font-semibold text-indigo-600 transition hover:text-indigo-800"
             >
                 ← Go Back
