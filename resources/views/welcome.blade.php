@@ -7,7 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Spark Deck') }}</title>
+        <title>Spark Deck</title>
 
         @fluxAppearance
 
@@ -154,7 +154,7 @@
 
                                     </div>
 
-                                    <h2 class="mt-8 text-2xl font-bold">
+                                    <h2 class="mt-8 text-2xl font-bold text-slate-900">
 
                                         What organelle is known as the powerhouse of the cell?
 
@@ -265,7 +265,7 @@
 
                             </div>
 
-                            <h3 class="mt-6 text-xl font-bold">
+                            <h3 class="mt-6 text-xl font-bold text-slate-900">
                                 Create Decks
                             </h3>
 
@@ -289,7 +289,7 @@
 
                             </div>
 
-                            <h3 class="mt-6 text-xl font-bold">
+                            <h3 class="mt-6 text-xl font-bold text-slate-900">
                                 Browse Community Decks
                             </h3>
 
@@ -313,7 +313,7 @@
 
                             </div>
 
-                            <h3 class="mt-6 text-xl font-bold">
+                            <h3 class="mt-6 text-xl font-bold text-slate-900">
                                 Community Upvotes
                             </h3>
 
@@ -337,7 +337,7 @@
 
                             </div>
 
-                            <h3 class="mt-6 text-xl font-bold">
+                            <h3 class="mt-6 text-xl font-bold text-slate-900">
                                 Powerful Search
                             </h3>
 
@@ -362,7 +362,7 @@
 
                             </div>
 
-                            <h3 class="mt-6 text-xl font-bold">
+                            <h3 class="mt-6 text-xl font-bold text-slate-900">
                                 Focused Studying
                             </h3>
 

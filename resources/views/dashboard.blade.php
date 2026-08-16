@@ -95,35 +95,35 @@
             </div>
 
 
-            <!-- Completed Decks -->
+           <!-- Completed Decks -->
 
-            <div class="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
+        <div class="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
 
-                <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center justify-between gap-4">
 
-                    <div>
+                <div>
 
-                        <p class="text-sm font-semibold text-slate-500">
-                            Completed Decks
-                        </p>
+                    <p class="text-sm font-semibold text-slate-500">
+                        Completed Decks
+                    </p>
 
-                        <p class="mt-2 text-3xl font-bold text-slate-900">
-                            {{ $completedDecks }}
-                        </p>
-
-                    </div>
-
-                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-lg">
-                        ✓
-                    </div>
+                    <p class="mt-2 text-3xl font-bold text-slate-900">
+                        {{ $completedDecks }}
+                    </p>
 
                 </div>
 
-                <p class="mt-3 text-sm text-slate-500">
-                    Decks you've finished
-                </p>
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-indigo-100 text-lg font-semibold text-indigo-600">
+                    ✓
+                </div>
 
             </div>
+
+            <p class="mt-3 text-sm text-slate-500">
+                Decks you've finished
+            </p>
+
+        </div>
 
 
             <!-- Public Decks -->

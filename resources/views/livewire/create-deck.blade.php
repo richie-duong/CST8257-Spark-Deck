@@ -18,7 +18,7 @@
                         <x-text-input
                             id="title"
                             type="text"
-                            class="mt-2 block w-full rounded-2xl border-slate-200 px-5 py-3 focus:border-cyan-400 focus:ring-cyan-200"
+                            class="mt-2 block w-full rounded-2xl border-slate-200 bg-white px-5 py-3 text-slate-900 focus:border-cyan-400 focus:ring-cyan-200"
                             placeholder="{{ __('Enter a deck title') }}"
                             wire:model="title"
                         />
@@ -30,7 +30,7 @@
                         <textarea
                             id="description"
                             rows="5"
-                            class="mt-2 block w-full rounded-2xl border-slate-200 px-5 py-3 shadow-sm focus:border-cyan-400 focus:ring-cyan-200"
+                            class="mt-2 block w-full rounded-2xl border-slate-200 bg-white px-5 py-3 text-slate-900 shadow-sm focus:border-cyan-400 focus:ring-cyan-200"
                             placeholder="{{ __('Describe this deck') }}"
                             wire:model="description"
                         ></textarea>
@@ -41,11 +41,11 @@
                         <x-input-label for="visibility" :value="__('Visibility')" class="font-semibold text-slate-700" />
                         <select
                             id="visibility"
-                            class="mt-2 block w-full rounded-2xl border-slate-200 px-5 py-3 shadow-sm focus:border-cyan-400 focus:ring-cyan-200"
+                            class="mt-2 block w-full rounded-2xl border-slate-200 bg-white px-5 py-3 text-slate-900 shadow-sm focus:border-cyan-400 focus:ring-cyan-200"
                             wire:model="visibility"
                         >
-                            <option value="private">{{ __('Private') }}</option>
-                            <option value="public">{{ __('Public') }}</option>
+                            <option class="bg-white text-slate-900" value="private">{{ __('Private') }}</option>
+                            <option class="bg-white text-slate-900" value="public">{{ __('Public') }}</option>
                         </select>
                         <x-input-error :messages="$errors->get('visibility')" class="mt-2" />
                     </div>

@@ -97,7 +97,7 @@
                                 id="question"
                                 wire:model="question"
                                 rows="4"
-                                class="mt-2 block w-full rounded-2xl border-slate-200 px-5 py-3 shadow-sm focus:border-cyan-400 focus:ring-cyan-200"
+                                class="mt-2 block w-full rounded-2xl border-slate-200 bg-white px-5 py-3 text-slate-900 shadow-sm focus:border-cyan-400 focus:ring-cyan-200"
                                 placeholder="Enter the question..."
                             ></textarea>
 
@@ -118,7 +118,7 @@
                                 id="answer"
                                 wire:model="answer"
                                 rows="4"
-                                class="mt-2 block w-full rounded-2xl border-slate-200 px-5 py-3 shadow-sm focus:border-cyan-400 focus:ring-cyan-200"
+                                class="mt-2 block w-full rounded-2xl border-slate-200 bg-white px-5 py-3 text-slate-900 shadow-sm focus:border-cyan-400 focus:ring-cyan-200"
                                 placeholder="Enter the answer..."
                             ></textarea>
 
@@ -178,7 +178,7 @@
                                 id="edit-question"
                                 wire:model="question"
                                 rows="4"
-                                class="mt-2 block w-full rounded-2xl border-slate-200 px-5 py-3 shadow-sm focus:border-cyan-400 focus:ring-cyan-200"
+                                class="mt-2 block w-full rounded-2xl border-slate-200 bg-white px-5 py-3 text-slate-900 shadow-sm focus:border-cyan-400 focus:ring-cyan-200"
                             ></textarea>
 
                             <x-input-error
@@ -198,7 +198,7 @@
                                 id="edit-answer"
                                 wire:model="answer"
                                 rows="4"
-                                class="mt-2 block w-full rounded-2xl border-slate-200 px-5 py-3 shadow-sm focus:border-cyan-400 focus:ring-cyan-200"
+                                class="mt-2 block w-full rounded-2xl border-slate-200 bg-white px-5 py-3 text-slate-900 shadow-sm focus:border-cyan-400 focus:ring-cyan-200"
                             ></textarea>
 
                             <x-input-error

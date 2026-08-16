@@ -80,7 +80,7 @@ new #[Layout('layouts.guest')] class extends Component
                 <x-text-input
                     wire:model="form.email"
                     id="email"
-                    class="mt-2 block w-full rounded-xl border-slate-200 bg-white px-4 py-3 shadow-sm transition focus:border-cyan-400 focus:ring-cyan-200"
+                    class="mt-2 block w-full rounded-xl border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm transition focus:border-cyan-400 focus:ring-cyan-200"
                     type="email"
                     name="email"
                     required
@@ -126,7 +126,7 @@ new #[Layout('layouts.guest')] class extends Component
                 <x-text-input
                     wire:model="form.password"
                     id="password"
-                    class="mt-2 block w-full rounded-xl border-slate-200 bg-white px-4 py-3 shadow-sm transition focus:border-cyan-400 focus:ring-cyan-200"
+                    class="mt-2 block w-full rounded-xl border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm transition focus:border-cyan-400 focus:ring-cyan-200"
                     type="password"
                     name="password"
                     required
