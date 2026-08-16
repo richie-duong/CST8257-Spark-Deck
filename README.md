@@ -63,6 +63,8 @@ Replace `<repository-url>` with your GitHub repository URL.
 composer install
 ```
 
+In order for this command to work, ensure that Laravel Herd is already installed on your device.
+
 ### 3. Install JavaScript dependencies
 
 ```bash
